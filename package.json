@@ -86,7 +86,7 @@
     "jest": "27.4.4",
     "react-resize-observer": "^1.1.1",
     "rimraf": "^4.4.1",
-    "rollup": "2.61.0",
+    "rollup": "2.79.2",
     "rollup-plugin-babel": "4.4.0",
     "rollup-plugin-commonjs": "10.1.0",
     "rollup-plugin-copy": "3.4.0",
