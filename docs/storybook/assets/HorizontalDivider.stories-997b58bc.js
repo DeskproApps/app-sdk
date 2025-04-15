@@ -1,0 +1,3 @@
+import{j as o}from"./jsx-runtime-6d9837fe.js";import{l as s}from"./SPA-63b29876.js";import"./index-93f6b7ae.js";import"./index-03a57050.js";import{D as p}from"./DeskproAppProvider-e4a73bcd.js";import{H as a}from"./Divider-a1a4b2e0.js";const h={title:"Core/Divider"},r=()=>o.jsx(p,{theme:s,children:o.jsx(a,{width:2})});var e,i,t;r.parameters={...r.parameters,docs:{...(e=r.parameters)==null?void 0:e.docs,source:{originalSource:`() => <DeskproAppProvider theme={lightTheme}>
+    <HorizontalDividerComp width={2} />
+  </DeskproAppProvider>`,...(t=(i=r.parameters)==null?void 0:i.docs)==null?void 0:t.source}}};const v=["HorizontalDividerStory"];export{r as HorizontalDividerStory,v as __namedExportsOrder,h as default};
