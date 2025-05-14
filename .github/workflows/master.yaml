@@ -76,7 +76,7 @@ jobs:
 
           git commit -m "Updated Storybook"
 
-          git push origin master
+          git push origin main
 
       - name: Authenticate Registry
         env:
