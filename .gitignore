@@ -1,9 +1,12 @@
-/dist
-/esm
-/cjs
-/.idea
-/node_modules
-build-storybook
+.idea
+node_modules
 .DS_Store
+dist
+build
+dist-ssr
+*.local
 /coverage
 .pnpm-store
+
+# Sentry Config File
+.env.sentry-build-plugin
