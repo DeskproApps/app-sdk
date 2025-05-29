@@ -9,7 +9,11 @@ jobs:
   deskpro_ui:
     name: Test / Build
     timeout-minutes: 30
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -63,7 +67,7 @@ jobs:
       - name: Deploy Storybook
         id: chromauideployment
         if: github.actor != 'dependabot[bot]'
-        uses: chromaui/action@v1
+        uses: chromaui/action@c93e0bc3a63aa176e14a75b61a31847cbfdd341c # v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
@@ -72,10 +76,10 @@ jobs:
 
       - name: Leave comment with URL
         if: github.actor != 'dependabot[bot]'
-        uses: actions-ecosystem/action-create-comment@v1
+        uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043 # v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.pull_request.number }}
           body: |
-            Storybook build URL ${{steps.chromauideployment.outputs.storybookUrl}}
-
-            Chromatic URL ${{steps.chromauideployment.outputs.buildUrl}}
+            :rocket: **Storybook is ready!** :rocket:
+            You can view the [Storybook Build here](${{ steps.chromauideployment.outputs.storybookUrl }}) and the [Chromatic Build here](${{steps.chromauideployment.outputs.buildUrl}}).
+          reactions: rocket
