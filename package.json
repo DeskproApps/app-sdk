@@ -118,5 +118,10 @@
     "lint": "pnpm eslint --ext ts,tsx ./src",
     "docs:storybook": "storybook build --quiet -o docs/storybook",
     "docs": "pnpm run docs:storybook"
+  },
+  "pnpm": {
+    "overrides": {
+      "vite": "4.5.14"
+    }
   }
 }
