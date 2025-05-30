@@ -1,41 +1,38 @@
+// deno-lint-ignore-file require-await no-explicit-any
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { connectToParent, Connection } from "penpal";
+import { Connection, connectToParent, Methods } from "penpal";
 import {
-  IDeskproClient,
+  AppElement,
   ChildMethod,
   ChildMethods,
-  ProxyAuthPayload,
-  DeskproCallSender,
   Context,
+  DeskproCallSender,
   DeskproClientOptions,
-  TargetActionChildMethod,
-  TargetAction,
-  IEntityAssociation,
-  AppElement,
-  ElementEventChildMethod,
-  StateOptions,
-  SetStateResponse,
-  UserStateOptions,
-  GetStateResponse,
-  TargetActionType,
-  TargetActionOptions,
-  IDeskproUI,
   DeskproUIMessage,
-  OAuth2Result,
+  ElementEventChildMethod,
+  GetStateResponse,
   IOAuth2,
   OAuth2Error,
-  StartOAuth2LocalFlowResult,
-  StartOAuth2GlobalFlowResult,
+  OAuth2Result,
   PollOAuth2FlowResult,
-  PollOAuth2LocalFlowResult,
   PollOAuth2GlobalFlowResult,
-} from "./types";
-import { CallSender } from "penpal/lib/types";
+  PollOAuth2LocalFlowResult,
+  ProxyAuthPayload,
+  SetStateResponse,
+  StartOAuth2GlobalFlowResult,
+  StartOAuth2LocalFlowResult,
+  StateOptions,
+  TargetAction,
+  TargetActionChildMethod,
+  TargetActionOptions,
+  TargetActionType,
+  UserStateOptions,
+} from "@/client/types.ts";
 
-class DeskproUI implements IDeskproUI {
+class DeskproUI {
   constructor(
-    private client: IDeskproClient,
-  ) { }
+    private client: DeskproClient,
+  ) {}
 
   send(message: DeskproUIMessage): Promise<void> {
     return this.client.sendDeskproUIMessage(message);
@@ -48,7 +45,11 @@ class DeskproUI implements IDeskproUI {
     });
   }
 
-  appendLinkToActiveTicketReplyBox(url: string, text: string, title?: string): Promise<void> {
+  appendLinkToActiveTicketReplyBox(
+    url: string,
+    text: string,
+    title?: string,
+  ): Promise<void> {
     return this.send({
       type: "append_link_to_active_ticket_reply_box",
       url,
@@ -80,15 +81,19 @@ class DeskproUI implements IDeskproUI {
   }
 }
 
-class EntityAssociation implements IEntityAssociation {
+class EntityAssociation {
   constructor(
-    private client: IDeskproClient,
+    private client: DeskproClient,
     private name: string,
-    private entityId: string
-  ) { }
+    private entityId: string,
+  ) {}
 
   async get<T>(key: string): Promise<T | null> {
-    const value = await this.client.entityAssociationGet(this.entityId, this.name, key);
+    const value = await this.client.entityAssociationGet(
+      this.entityId,
+      this.name,
+      key,
+    );
     return value ? JSON.parse(value) : null;
   }
 
@@ -97,7 +102,12 @@ class EntityAssociation implements IEntityAssociation {
   }
 
   set<T>(key: string, value?: T): Promise<void> {
-    return this.client.entityAssociationSet(this.entityId, this.name, key, value ? JSON.stringify(value) : undefined);
+    return this.client.entityAssociationSet(
+      this.entityId,
+      this.name,
+      key,
+      value ? JSON.stringify(value) : undefined,
+    );
   }
 
   delete(key: string): Promise<void> {
@@ -105,8 +115,7 @@ class EntityAssociation implements IEntityAssociation {
   }
 }
 
-export class DeskproClient implements IDeskproClient {
-
+export class DeskproClient {
   private parentMethods: ChildMethods = {
     onReady: () => undefined,
     onShow: () => undefined,
@@ -130,18 +139,47 @@ export class DeskproClient implements IDeskproClient {
   public setTitle: (title: string) => void;
   public focus: () => void;
   public unfocus: () => void;
-  public openContact: (contact: Partial<{ id: number, emailAddress: string, phoneNumber: string }>) => void;
+  public openContact: (
+    contact: Partial<{ id: number; emailAddress: string; phoneNumber: string }>,
+  ) => void;
 
   // EntityAssociation
-  public entityAssociationSet: (entityId: string, name: string, key: string, value?: string) => Promise<void>;
-  public entityAssociationDelete: (entityId: string, name: string, key: string) => Promise<void>;
-  public entityAssociationGet: (entityId: string, name: string, key: string) => Promise<string | null>;
-  public entityAssociationList: (entityId: string, name: string) => Promise<string[]>;
-  public entityAssociationCountEntities: (name: string, key: string) => Promise<number>;
+  public entityAssociationSet: (
+    entityId: string,
+    name: string,
+    key: string,
+    value?: string,
+  ) => Promise<void>;
+  public entityAssociationDelete: (
+    entityId: string,
+    name: string,
+    key: string,
+  ) => Promise<void>;
+  public entityAssociationGet: (
+    entityId: string,
+    name: string,
+    key: string,
+  ) => Promise<string | null>;
+  public entityAssociationList: (
+    entityId: string,
+    name: string,
+  ) => Promise<string[]>;
+  public entityAssociationCountEntities: (
+    name: string,
+    key: string,
+  ) => Promise<number>;
 
   // State
-  public setState: <T>(name: string, value: T, options?: StateOptions) => Promise<SetStateResponse>;
-  public setUserState: <T>(name: string, value: T, options?: UserStateOptions) => Promise<SetStateResponse>;
+  public setState: <T>(
+    name: string,
+    value: T,
+    options?: StateOptions,
+  ) => Promise<SetStateResponse>;
+  public setUserState: <T>(
+    name: string,
+    value: T,
+    options?: UserStateOptions,
+  ) => Promise<SetStateResponse>;
   public getState: <T>(name: string) => Promise<GetStateResponse<T>[]>;
   public getUserState: <T>(name: string) => Promise<GetStateResponse<T>[]>;
   public deleteState: (name: string) => Promise<boolean>;
@@ -157,40 +195,58 @@ export class DeskproClient implements IDeskproClient {
   public setBlocking: (blocking: boolean) => Promise<void>;
 
   // Target Actions
-  public registerTargetAction: (name: string, type: TargetActionType, options?: TargetActionOptions) => Promise<void>;
+  public registerTargetAction: (
+    name: string,
+    type: TargetActionType,
+    options?: TargetActionOptions,
+  ) => Promise<void>;
   public deregisterTargetAction: (name: string) => Promise<void>;
 
   // OAuth2
-  public startOAuth2LocalFlow: (codeAcquisitionPattern: RegExp, timeout: number) => Promise<StartOAuth2LocalFlowResult>;
-  public startOAuth2GlobalFlow: (clientId: string, timeout: number) => Promise<StartOAuth2GlobalFlowResult>;
-  public pollOAuth2Flow: <T = PollOAuth2FlowResult>(state: string) => Promise<T>;
+  public startOAuth2LocalFlow: (
+    codeAcquisitionPattern: RegExp,
+    timeout: number,
+  ) => Promise<StartOAuth2LocalFlowResult>;
+  public startOAuth2GlobalFlow: (
+    clientId: string,
+    timeout: number,
+  ) => Promise<StartOAuth2GlobalFlowResult>;
+  public pollOAuth2Flow: <T = PollOAuth2FlowResult>(
+    state: string,
+  ) => Promise<T>;
 
   // Admin
   public setAdminSetting: (value: string) => void;
-  public setAdminSettingInvalid: (message: string, settingName?: string) => void;
+  public setAdminSettingInvalid: (
+    message: string,
+    settingName?: string,
+  ) => void;
 
   // Deskpro UI
   public sendDeskproUIMessage: (message: DeskproUIMessage) => Promise<void>;
 
   constructor(
-    private readonly parent: <T extends object = CallSender>(options?: object) => Connection<T>,
-    private readonly options: DeskproClientOptions
+    private readonly parent: <T extends Methods = Methods>(
+      options?: object,
+    ) => Connection<T>,
+    private readonly options: DeskproClientOptions,
   ) {
-    this.getProxyAuth = () => new Promise<ProxyAuthPayload>(() => { });
-    this.getAdminGenericProxyAuth = () => new Promise<ProxyAuthPayload>(() => { });
-    this.resize = () => { };
-    this.setWidth = () => { };
-    this.setHeight = () => { };
-    this.registerElement = () => { };
-    this.deregisterElement = () => { };
-    this.setBadgeCount = () => { };
-    this.setTitle = () => { };
-    this.focus = () => { };
-    this.unfocus = () => { };
-    this.openContact = () => { };
+    this.getProxyAuth = () => new Promise<ProxyAuthPayload>(() => {});
+    this.getAdminGenericProxyAuth = () =>
+      new Promise<ProxyAuthPayload>(() => {});
+    this.resize = () => {};
+    this.setWidth = () => {};
+    this.setHeight = () => {};
+    this.registerElement = () => {};
+    this.deregisterElement = () => {};
+    this.setBadgeCount = () => {};
+    this.setTitle = () => {};
+    this.focus = () => {};
+    this.unfocus = () => {};
+    this.openContact = () => {};
 
-    this.entityAssociationSet = async () => { };
-    this.entityAssociationDelete = async () => { };
+    this.entityAssociationSet = async () => {};
+    this.entityAssociationDelete = async () => {};
     this.entityAssociationGet = async () => null;
     this.entityAssociationList = async () => [""];
     this.entityAssociationCountEntities = async () => 0;
@@ -204,25 +260,28 @@ export class DeskproClient implements IDeskproClient {
     this.hasState = async () => false;
     this.hasUserState = async () => false;
 
-    this.setSetting = async () => { };
-    this.setSettings = async () => { };
+    this.setSetting = async () => {};
+    this.setSettings = async () => {};
 
-    this.setBlocking = async () => { };
+    this.setBlocking = async () => {};
 
-    this.registerTargetAction = async () => { };
-    this.deregisterTargetAction = async () => { };
+    this.registerTargetAction = async () => {};
+    this.deregisterTargetAction = async () => {};
 
     this.startOAuth2LocalFlow = async () => ({} as StartOAuth2LocalFlowResult);
-    this.startOAuth2GlobalFlow = async () => ({} as StartOAuth2GlobalFlowResult);
-    this.pollOAuth2Flow = async <PollOAuth2FlowResult>() => ({} as PollOAuth2FlowResult);
+    this.startOAuth2GlobalFlow =
+      async () => ({} as StartOAuth2GlobalFlowResult);
+    this.pollOAuth2Flow = async <
+      PollOAuth2FlowResult,
+    >() => ({} as PollOAuth2FlowResult);
 
-    this.setAdminSetting = async () => { };
-    this.setAdminSettingInvalid = async () => { };
+    this.setAdminSetting = async () => {};
+    this.setAdminSettingInvalid = async () => {};
 
-    this.sendDeskproUIMessage = async () => { };
+    this.sendDeskproUIMessage = async () => {};
 
     if (this.options.runAfterPageLoad) {
-      window.addEventListener("load", () => this.run());
+      document.addEventListener("load", () => this.run());
     }
   }
 
@@ -248,11 +307,13 @@ export class DeskproClient implements IDeskproClient {
     }
 
     if (document && parent._setHeight) {
-      this.resize = (height?: number) => parent._setHeight(height ?? document.body.scrollHeight);
+      this.resize = (height?: number) =>
+        parent._setHeight(height ?? document.body.scrollHeight);
     }
 
     if (parent._registerElement) {
-      this.registerElement = (id: string, element: AppElement) => parent._registerElement(id, element);
+      this.registerElement = (id: string, element: AppElement) =>
+        parent._registerElement(id, element);
     }
 
     if (parent._deregisterElement) {
@@ -306,16 +367,22 @@ export class DeskproClient implements IDeskproClient {
     }
 
     if (parent._entityAssociationCountEntities) {
-      this.entityAssociationCountEntities = parent._entityAssociationCountEntities;
+      this.entityAssociationCountEntities =
+        parent._entityAssociationCountEntities;
     }
 
     // State
     if (parent._stateSet) {
-      this.setState = <T>(name: string, value: T, options?: StateOptions) => parent._stateSet(name, JSON.stringify(value), options);
+      this.setState = <T>(name: string, value: T, options?: StateOptions) =>
+        parent._stateSet(name, JSON.stringify(value), options);
     }
 
     if (parent._userStateSet) {
-      this.setUserState = <T>(name: string, value: T, options?: UserStateOptions) => parent._userStateSet(name, JSON.stringify(value), options);
+      this.setUserState = <T>(
+        name: string,
+        value: T,
+        options?: UserStateOptions,
+      ) => parent._userStateSet(name, JSON.stringify(value), options);
     }
 
     if (parent._stateGet) {
@@ -356,11 +423,13 @@ export class DeskproClient implements IDeskproClient {
 
     // Settings
     if (parent._settingSet) {
-      this.setSetting = <T>(name: string, value: T) => parent._settingSet(name, value);
+      this.setSetting = <T>(name: string, value: T) =>
+        parent._settingSet(name, value);
     }
 
     if (parent._settingsSet) {
-      this.setSettings = (settings: Record<string, any>) => parent._settingsSet(JSON.stringify(settings));
+      this.setSettings = (settings: Record<string, any>) =>
+        parent._settingsSet(JSON.stringify(settings));
     }
 
     // Blocking
@@ -370,22 +439,32 @@ export class DeskproClient implements IDeskproClient {
 
     // Target Actions
     if (parent._registerTargetAction) {
-      this.registerTargetAction = (name: string, type: TargetActionType, options?: TargetActionOptions) => parent._registerTargetAction(name, type, options);
+      this.registerTargetAction = (
+        name: string,
+        type: TargetActionType,
+        options?: TargetActionOptions,
+      ) => parent._registerTargetAction(name, type, options);
     }
 
     if (parent._deregisterTargetAction) {
-      this.deregisterTargetAction = (name: string) => parent._deregisterTargetAction(name);
+      this.deregisterTargetAction = (name: string) =>
+        parent._deregisterTargetAction(name);
     }
 
     // OAuth2
     if (parent._startOAuth2LocalFlow) {
-      this.startOAuth2LocalFlow = (codeAcquisitionPattern: RegExp, timeout: number) => parent._startOAuth2LocalFlow(codeAcquisitionPattern.source, timeout);
+      this.startOAuth2LocalFlow = (
+        codeAcquisitionPattern: RegExp,
+        timeout: number,
+      ) => parent._startOAuth2LocalFlow(codeAcquisitionPattern.source, timeout);
     }
     if (parent._startOAuth2GlobalFlow) {
-      this.startOAuth2GlobalFlow = (clientId: string, timeout: number) => parent._startOAuth2GlobalFlow(clientId, timeout);
+      this.startOAuth2GlobalFlow = (clientId: string, timeout: number) =>
+        parent._startOAuth2GlobalFlow(clientId, timeout);
     }
     if (parent._pollOAuth2Flow) {
-      this.pollOAuth2Flow = <PollOAuth2FlowResult>(state: string) => parent._pollOAuth2Flow<PollOAuth2FlowResult>(state);
+      this.pollOAuth2Flow = <PollOAuth2FlowResult>(state: string) =>
+        parent._pollOAuth2Flow<PollOAuth2FlowResult>(state);
     }
 
     // Admin
@@ -394,12 +473,14 @@ export class DeskproClient implements IDeskproClient {
     }
 
     if (parent._setAdminSettingInvalid) {
-      this.setAdminSettingInvalid = (message, settingName) => parent._setAdminSettingInvalid(message, settingName);
+      this.setAdminSettingInvalid = (message, settingName) =>
+        parent._setAdminSettingInvalid(message, settingName);
     }
 
     // Deskpro UI
     if (parent._sendDeskproUIMessage) {
-      this.sendDeskproUIMessage = (message: DeskproUIMessage) => parent._sendDeskproUIMessage(message);
+      this.sendDeskproUIMessage = (message: DeskproUIMessage) =>
+        parent._sendDeskproUIMessage(message);
     }
   }
 
@@ -431,7 +512,9 @@ export class DeskproClient implements IDeskproClient {
   }
 
   public onTargetAction(cb: TargetActionChildMethod): void {
-    this.parentMethods.onTargetAction = <Payload>(action: TargetAction<Payload>) => {
+    this.parentMethods.onTargetAction = <Payload>(
+      action: TargetAction<Payload>,
+    ) => {
       cb(action);
       if (this.resize && this.options.resizeAfterEvents) {
         this.resize();
@@ -440,7 +523,11 @@ export class DeskproClient implements IDeskproClient {
   }
 
   public onElementEvent(cb: ElementEventChildMethod): void {
-    this.parentMethods.onElementEvent = <Payload>(id: string, type: string, payload: Payload) => {
+    this.parentMethods.onElementEvent = <Payload>(
+      id: string,
+      type: string,
+      payload: Payload,
+    ) => {
       cb(id, type, payload);
       if (this.resize && this.options.resizeAfterEvents) {
         this.resize();
@@ -448,21 +535,30 @@ export class DeskproClient implements IDeskproClient {
     };
   }
 
-  public onAdminSettingsChange(cb: (settings: Record<string, any>) => void): void {
-    this.parentMethods.onAdminSettingsChange = (settings: Record<string, any>) => {
+  public onAdminSettingsChange(
+    cb: (settings: Record<string, any>) => void,
+  ): void {
+    this.parentMethods.onAdminSettingsChange = (
+      settings: Record<string, any>,
+    ) => {
       cb(settings);
     };
   }
 
-  public getEntityAssociation(name: string, entityId: string): IEntityAssociation {
+  public getEntityAssociation(name: string, entityId: string) {
     return new EntityAssociation(this, name, entityId);
   }
 
   public async startOauth2Local(
-    authorizeUrlFn: (data: { state: string, callbackUrl: string, codeChallenge: string }) => string,
+    authorizeUrlFn: (
+      data: { state: string; callbackUrl: string; codeChallenge: string },
+    ) => string,
     codeAcquisitionPattern: RegExp,
-    convertResponseToToken: (code: string, codeVerifierProxyPlaceholder: string) => Promise<OAuth2Result>,
-    options?: { timeout?: number, pollInterval?: number },
+    convertResponseToToken: (
+      code: string,
+      codeVerifierProxyPlaceholder: string,
+    ) => Promise<OAuth2Result>,
+    options?: { timeout?: number; pollInterval?: number },
   ): Promise<IOAuth2> {
     const timeout = options?.timeout ?? (600 * 1000); // 10 minute timeout
     const pollInterval = options?.pollInterval ?? 2000; // 2 second poll interval
@@ -481,26 +577,32 @@ export class DeskproClient implements IDeskproClient {
 
     // Curried poll function that returns the promise that resolves when polling is done... or rejects
     // when polling times out
-    const poll = () => new Promise<OAuth2Result>((resolve, reject) => {
-      const poller = setInterval(() => {
-        this.pollOAuth2Flow<PollOAuth2LocalFlowResult>(start.state).then((pollResult) => {
-          if (pollResult && pollResult.status !== "Pending") {
-            clearInterval(poller);
-            if (pollResult.error) {
-              reject(new OAuth2Error(pollResult.error));
-              return;
-            }
-            convertResponseToToken(pollResult.authCode as string, pollResult.codeVerifierProxyPlaceholder)
-              .then(resolve)
-          }
-        });
-      }, pollInterval);
+    const poll = () =>
+      new Promise<OAuth2Result>((resolve, reject) => {
+        const poller = setInterval(() => {
+          this.pollOAuth2Flow<PollOAuth2LocalFlowResult>(start.state).then(
+            (pollResult) => {
+              if (pollResult && pollResult.status !== "Pending") {
+                clearInterval(poller);
+                if (pollResult.error) {
+                  reject(new OAuth2Error(pollResult.error));
+                  return;
+                }
+                convertResponseToToken(
+                  pollResult.authCode as string,
+                  pollResult.codeVerifierProxyPlaceholder,
+                )
+                  .then(resolve);
+              }
+            },
+          );
+        }, pollInterval);
 
-      setTimeout(() => {
-        clearInterval(poller);
-        reject(new OAuth2Error("Acquisition timeout"));
-      }, timeout);
-    });
+        setTimeout(() => {
+          clearInterval(poller);
+          reject(new OAuth2Error("Acquisition timeout"));
+        }, timeout);
+      });
 
     return {
       poll,
@@ -509,7 +611,10 @@ export class DeskproClient implements IDeskproClient {
     };
   }
 
-  public async startOauth2Global(clientId: string, options?: { timeout?: number, pollInterval?: number }): Promise<IOAuth2> {
+  public async startOauth2Global(
+    clientId: string,
+    options?: { timeout?: number; pollInterval?: number },
+  ): Promise<IOAuth2> {
     const timeout = options?.timeout ?? (600 * 1000); // 10 minute timeout
     const pollInterval = options?.pollInterval ?? 2000; // 2 second poll interval
 
@@ -520,27 +625,30 @@ export class DeskproClient implements IDeskproClient {
 
     // Curried poll function that returns the promise that resolves when polling is done... or rejects
     // when polling times out
-    const poll = () => new Promise<OAuth2Result>((resolve, reject) => {
-      const poller = setInterval(() => {
-        this.pollOAuth2Flow<PollOAuth2GlobalFlowResult>(start.state).then((pollResult) => {
-          if (pollResult && pollResult.status !== "Pending") {
-            clearInterval(poller);
-            if (pollResult.error) {
-              reject(new OAuth2Error(pollResult.error));
-              return;
-            }
-            resolve({
-              data: pollResult,
-            });
-          }
-        });
-      }, pollInterval);
+    const poll = () =>
+      new Promise<OAuth2Result>((resolve, reject) => {
+        const poller = setInterval(() => {
+          this.pollOAuth2Flow<PollOAuth2GlobalFlowResult>(start.state).then(
+            (pollResult) => {
+              if (pollResult && pollResult.status !== "Pending") {
+                clearInterval(poller);
+                if (pollResult.error) {
+                  reject(new OAuth2Error(pollResult.error));
+                  return;
+                }
+                resolve({
+                  data: pollResult,
+                });
+              }
+            },
+          );
+        }, pollInterval);
 
-      setTimeout(() => {
-        clearInterval(poller);
-        reject(new OAuth2Error("Acquisition timeout"));
-      }, timeout);
-    });
+        setTimeout(() => {
+          clearInterval(poller);
+          reject(new OAuth2Error("Acquisition timeout"));
+        }, timeout);
+      });
 
     return {
       poll,
@@ -549,7 +657,7 @@ export class DeskproClient implements IDeskproClient {
     };
   }
 
-  public deskpro(): IDeskproUI {
+  public deskpro() {
     return new DeskproUI(this);
   }
 
@@ -558,4 +666,5 @@ export class DeskproClient implements IDeskproClient {
   }
 }
 
-export const createClient = (options: DeskproClientOptions = {}): IDeskproClient => new DeskproClient(connectToParent, options);
+export const createClient = (options: DeskproClientOptions = {}) =>
+  new DeskproClient(connectToParent, options);

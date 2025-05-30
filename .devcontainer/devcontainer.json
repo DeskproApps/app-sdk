@@ -1,26 +1,20 @@
 {
-    "name": "App Container",
-    "image": "mcr.microsoft.com/devcontainers/javascript-node:latest",
-    "features": {
-      "ghcr.io/devcontainers/features/node:1": {
-        "version": "lts",
-        "pnpm": "latest"
-      }
-    },
-    "customizations": {
-      "vscode": {
-        "settings": {
-          "terminal.integrated.defaultProfile.linux": "bash",
-          "editor.tabSize": 2
-        },
-        "extensions": [
-          "dbaeumer.vscode-eslint"
-        ]
-      }
-    },
-    "mounts": [
-      "source=${localEnv:HOME}/.gitconfig,target=/home/node/.gitconfig,type=bind,consistency=cached",
-      "source=${localEnv:HOME}/.ssh,target=/home/node/.ssh,type=bind,consistency=cached"
-    ],
-    "postCreateCommand": "pnpm install"
-  }
+  "name": "App Container",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "editor.tabSize": 2
+      },
+      "extensions": [
+        "denoland.vscode-deno"
+      ]
+    }
+  },
+  "mounts": [
+    "source=${localEnv:HOME}/.gitconfig,target=/home/vscode/.gitconfig,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached"
+  ],
+  "onCreateCommand": "curl -fsSL https://deno.land/x/install/install.sh | sh -s -- --yes && . \"/home/vscode/.deno/env\""
+}

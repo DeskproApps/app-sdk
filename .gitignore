@@ -3,7 +3,6 @@
 /cjs
 /.idea
 /node_modules
-build-storybook
 .DS_Store
 /coverage
 .pnpm-store

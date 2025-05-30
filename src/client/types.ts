@@ -1,16 +1,7 @@
-export interface User {
-  firstName: string;
-  lastName: string;
-  displayName: string;
-  email?: string;
-}
+// deno-lint-ignore-file no-explicit-any
 
-export interface TicketContext {
-  id: string;
-  primaryUser: User;
-}
-
-export type ContextType = "ticket"
+export type ContextType =
+  | "ticket"
   | "user"
   | "organisation"
   | "knowledge_base"
@@ -19,14 +10,37 @@ export type ContextType = "ticket"
   | "guide_topic"
   | "community_topic"
   | "global"
-  | "admin_settings"
-  ;
+  | "admin_settings";
 
-export interface Context<Data = any, Settings = any> {
-  type: ContextType;
+type BaseContext<Type extends ContextType, Data, Settings> = {
+  type: Type;
+  data: Data;
   settings: Settings;
-  data?: Data;
-}
+};
+
+// @todo: Fill this out with real values.
+export type DataTicket = Record<string, any>;
+export type DataUser = Record<string, any>;
+export type DataOrganisation = Record<string, any>;
+export type DataKnowledgeBase = Record<string, any>;
+export type DataNews = Record<string, any>;
+export type DataDownload = Record<string, any>;
+export type DataGuideTopic = Record<string, any>;
+export type DataCommunityTopic = Record<string, any>;
+export type DataGlobal = Record<string, any>;
+export type DataAdminSettings = Record<string, any>;
+
+export type Context<Settings> =
+  | BaseContext<"ticket", DataTicket, Settings>
+  | BaseContext<"user", DataUser, Settings>
+  | BaseContext<"organisation", DataOrganisation, Settings>
+  | BaseContext<"knowledge_base", DataKnowledgeBase, Settings>
+  | BaseContext<"news", DataNews, Settings>
+  | BaseContext<"download", DataDownload, Settings>
+  | BaseContext<"guide_topic", DataGuideTopic, Settings>
+  | BaseContext<"community_topic", DataCommunityTopic, Settings>
+  | BaseContext<"global", DataGlobal, Settings>
+  | BaseContext<"admin_settings", DataAdminSettings, Settings>;
 
 export interface ProxyAuthPayload {
   proxyUrl: string;
@@ -35,15 +49,14 @@ export interface ProxyAuthPayload {
 }
 
 export type TargetActionType =
-  "ticket_addition"
+  | "ticket_addition"
   | "reply_box_note_item_selection"
   | "on_reply_box_note"
   | "reply_box_email_item_selection"
-  | "on_reply_box_email"
-  ;
+  | "on_reply_box_email";
 
 export type TargetActionPayload =
-  {
+  | {
     type: "ticket_addition";
   }
   | {
@@ -75,8 +88,7 @@ export type TargetActionPayload =
       email: string;
       attachments: File[];
     };
-  }
-  ;
+  };
 
 export type TicketAdditionTargetAction = {
   type: "ticket_addition";
@@ -143,35 +155,40 @@ export type OnTicketReplyEmailTargetAction = {
   appIconUrl: string;
 };
 
-export type TargetActionData = TicketAdditionTargetAction
+export type TargetActionData =
+  | TicketAdditionTargetAction
   | TicketReplyNoteItemSelectionTargetAction
   | OnTicketReplyNoteTargetAction
   | TicketReplyEmailItemSelectionTargetAction
-  | OnTicketReplyEmailTargetAction
-  ;
+  | OnTicketReplyEmailTargetAction;
 
-export interface TargetAction<P = any> {
+export type TargetAction<P = any> = {
   name: string;
   type: TargetActionType;
-  context: Context;
+  context: Context<any>; // @todo: is this accurate?
   payload?: P;
   subject: string;
-}
+};
 
-export interface TargetElementEvent<Payload = any> {
+export type TargetElementEvent<Payload = any> = {
   id: string;
   type: string;
   payload?: Payload;
-}
+};
 
 export type AppElementPayload<T = any> = T;
 
-export type ChildMethod = (context: Context) => void;
+export type ChildMethod = (context: Context<any>) => void;
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- onTargetAction complains if removed
-export type TargetActionChildMethod<Payload = any> = <Payload>(action: TargetAction<Payload>) => void;
+export type TargetActionChildMethod<Payload = any> = <Payload>(
+  action: TargetAction<Payload>,
+) => void;
 
-export type ElementEventChildMethod = <Payload = any>(id: string, type: string, payload?: Payload) => void;
+export type ElementEventChildMethod = <Payload = any>(
+  id: string,
+  type: string,
+  payload?: Payload,
+) => void;
 
 export type ChildMethods = {
   onReady: ChildMethod;
@@ -180,16 +197,21 @@ export type ChildMethods = {
   onTargetAction: TargetActionChildMethod;
   onElementEvent: ElementEventChildMethod;
   onAdminSettingsChange: (settings: Record<string, any>) => void;
-  [name: string]: ChildMethod | TargetActionChildMethod | ElementEventChildMethod;
+  [name: string]:
+    | ChildMethod
+    | TargetActionChildMethod
+    | ElementEventChildMethod;
 };
 
-export interface TicketSidebarDeskproCallSender {
+export type TicketSidebarDeskproCallSender = {
   setTitle: (title: string) => void;
-  openContact: (contact: Partial<{ id: number, emailAddress: string, phoneNumber: string }>) => void;
+  openContact: (
+    contact: Partial<{ id: number; emailAddress: string; phoneNumber: string }>,
+  ) => void;
   setBadgeCount: (count: number) => void;
-}
+};
 
-export interface CoreCallSender {
+export type CoreCallSender = {
   _setHeight: (height: number) => void;
   _setWidth: (width: number | string) => void;
   focus: () => void;
@@ -203,8 +225,16 @@ export interface CoreCallSender {
   _entityAssociationList: () => Promise<any>;
   _entityAssociationDelete: () => Promise<any>;
   _entityAssociationCountEntities: () => Promise<any>;
-  _stateSet: (name: string, value: string, options?: StateOptions) => Promise<any>;
-  _userStateSet: (name: string, value: string, options?: StateOptions) => Promise<any>;
+  _stateSet: (
+    name: string,
+    value: string,
+    options?: StateOptions,
+  ) => Promise<any>;
+  _userStateSet: (
+    name: string,
+    value: string,
+    options?: StateOptions,
+  ) => Promise<any>;
   _stateGet: (name: string) => Promise<string>;
   _userStateGet: (name: string) => Promise<any>;
   _stateHas: (name: string) => Promise<boolean>;
@@ -214,19 +244,31 @@ export interface CoreCallSender {
   _settingSet: (name: string, value: any) => Promise<any>;
   _settingsSet: (settings: string) => Promise<any>;
   _blockingSet: (blocking: boolean) => Promise<any>;
-  _registerTargetAction: (name: string, type: TargetActionType, options?: TargetActionOptions) => Promise<void>;
+  _registerTargetAction: (
+    name: string,
+    type: TargetActionType,
+    options?: TargetActionOptions,
+  ) => Promise<void>;
   _deregisterTargetAction: (name: string) => Promise<void>;
-  _startOAuth2LocalFlow: (codeAcquisitionPattern: string, timeout: number) => Promise<StartOAuth2LocalFlowResult>;
-  _startOAuth2GlobalFlow: (clientId: string, timeout: number) => Promise<StartOAuth2GlobalFlowResult>;
-  _pollOAuth2Flow: <PollOAuth2FlowResult>(state: string) => Promise<PollOAuth2FlowResult>;
+  _startOAuth2LocalFlow: (
+    codeAcquisitionPattern: string,
+    timeout: number,
+  ) => Promise<StartOAuth2LocalFlowResult>;
+  _startOAuth2GlobalFlow: (
+    clientId: string,
+    timeout: number,
+  ) => Promise<StartOAuth2GlobalFlowResult>;
+  _pollOAuth2Flow: <PollOAuth2FlowResult>(
+    state: string,
+  ) => Promise<PollOAuth2FlowResult>;
   _setAdminSetting: (value: string) => void;
   _setAdminSettingInvalid: (message: string, settingName?: string) => void;
   _sendDeskproUIMessage: (message: DeskproUIMessage) => Promise<void>;
-}
+};
 
 export type DeskproCallSender = CoreCallSender & TicketSidebarDeskproCallSender;
 
-export interface DeskproClientOptions {
+export type DeskproClientOptions = {
   /**
    * Run client after page load when DOM is available
    */
@@ -239,10 +281,10 @@ export interface DeskproClientOptions {
    * associated hook called
    */
   resizeAfterEvents?: boolean;
-}
+};
 
 export type AppElement<Payload = any> =
-  {
+  | {
     type: "plus_button";
     payload?: Payload;
   }
@@ -258,7 +300,7 @@ export type AppElement<Payload = any> =
     items: {
       title: string;
       payload?: Payload;
-    }[],
+    }[];
   }
   | {
     type: "edit_button";
@@ -268,8 +310,7 @@ export type AppElement<Payload = any> =
     type: "cta_external_link";
     url: string;
     hasIcon: boolean;
-  }
-  ;
+  };
 
 export interface StateOptions {
   /**
@@ -286,7 +327,7 @@ export interface StateOptions {
   expires?: Date;
 }
 
-export type UserStateOptions = StateOptions
+export type UserStateOptions = StateOptions;
 
 export interface SetStateResponse {
   isSuccess: boolean;
@@ -296,61 +337,6 @@ export interface SetStateResponse {
 export interface GetStateResponse<T> {
   name: string;
   data: T | null;
-}
-
-export interface IDeskproClient {
-  run: () => Promise<void>;
-  onReady: (cb: ChildMethod) => void;
-  onShow: (cb: ChildMethod) => void;
-  onChange: (cb: ChildMethod) => void;
-  onTargetAction: <Payload = any>(cb: TargetActionChildMethod<Payload>) => void;
-  onAdminSettingsChange: (cb: (settings: Record<string, any>) => void) => void;
-  getProxyAuth: () => Promise<ProxyAuthPayload>;
-  getAdminGenericProxyAuth: () => Promise<ProxyAuthPayload>;
-  resize: (height?: number) => void;
-  setWidth: (width: number | string) => void;
-  setHeight: (height: number) => void;
-  registerElement: (id: string, element: AppElement) => void;
-  deregisterElement: (id: string) => void;
-  onElementEvent: (cb: ElementEventChildMethod) => void;
-  setBadgeCount: (count: number) => void;
-  setTitle: (title: string) => void;
-  focus: () => void;
-  unfocus: () => void;
-  openContact: (contact: Partial<{ id: number, emailAddress: string, phoneNumber: string }>) => void;
-  entityAssociationGet: (entityId: string, name: string, key: string) => Promise<string | null>;
-  entityAssociationSet: (entityId: string, name: string, key: string, value?: string) => Promise<void>;
-  entityAssociationDelete: (entityId: string, name: string, key: string) => Promise<void>;
-  entityAssociationList: (entityId: string, name: string) => Promise<string[]>;
-  entityAssociationCountEntities: (name: string, key: string) => Promise<number>;
-  setState: <T>(name: string, value: T, options?: StateOptions) => Promise<SetStateResponse>;
-  setUserState: <T>(name: string, value: T, options?: UserStateOptions) => Promise<SetStateResponse>;
-  getState: <T>(name: string) => Promise<GetStateResponse<T>[]>;
-  getUserState: <T>(name: string) => Promise<GetStateResponse<T>[]>;
-  hasState: (name: string) => Promise<boolean>;
-  hasUserState: (name: string) => Promise<boolean>;
-  deleteState: (name: string) => Promise<boolean>;
-  deleteUserState: (name: string) => Promise<boolean>;
-  setSetting: <T>(name: string, value: T) => Promise<void>;
-  setSettings: (settings: Record<string, any>) => Promise<void>;
-  setBlocking: (blocking: boolean) => Promise<void>;
-  registerTargetAction: (name: string, type: TargetActionType, options?: TargetActionOptions) => Promise<void>;
-  deregisterTargetAction: (name: string) => Promise<void>;
-  setAdminSetting: (value: string) => void;
-  setAdminSettingInvalid: (message: string, settingName?: string) => void;
-  sendDeskproUIMessage: (message: DeskproUIMessage) => Promise<void>;
-  getEntityAssociation(name: string, entityId: string): IEntityAssociation;
-  startOauth2Local(
-    authorizeUrlFn: (data: { state: string, callbackUrl: string, codeChallenge: string }) => string,
-    codeAcquisitionPattern: RegExp,
-    convertResponseToToken: (code: string) => Promise<OAuth2Result>,
-    options?: { timeout?: number, pollInterval?: number },
-  ): Promise<IOAuth2>;
-  startOauth2Global(
-    clientId: string,
-    options?: { timeout?: number, pollInterval?: number },
-  ): Promise<IOAuth2>;
-  deskpro(): IDeskproUI;
 }
 
 export interface IOAuth2 {
@@ -367,7 +353,7 @@ export interface OAuth2Result {
   };
 }
 
-export class OAuth2Error extends Error { }
+export class OAuth2Error extends Error {}
 
 export type StartOAuth2LocalFlowResult = {
   state: string;
@@ -376,7 +362,7 @@ export type StartOAuth2LocalFlowResult = {
 };
 
 export type StartOAuth2GlobalFlowResult = {
-  state: string,
+  state: string;
   authorizationUrl: string;
 };
 
@@ -390,25 +376,18 @@ export type PollOAuth2FlowResult = {
 export type PollOAuth2LocalFlowResult = PollOAuth2FlowResult & {
   authCode?: string; // always exists when PollOAuth2FlowStatus is "Success"
   codeVerifierProxyPlaceholder: string;
-}
+};
 
 export type PollOAuth2GlobalFlowResult = PollOAuth2FlowResult & {
-  access_token: string,
-  refresh_token: string,
-  expires: number | string,
-}
+  access_token: string;
+  refresh_token: string;
+  expires: number | string;
+};
 
 export interface TargetActionOptions<Payload = any> {
   title?: string;
   description?: string;
   payload?: Payload;
-}
-
-export interface IEntityAssociation {
-  set: <T>(key: string, value?: T) => Promise<void>;
-  delete: (key: string) => Promise<void>;
-  get: <T>(key: string) => Promise<T | null>;
-  list: () => Promise<string[]>;
 }
 
 /**
@@ -455,18 +434,8 @@ export type DeskproUIMessageAlertDismiss = {
 };
 
 export type DeskproUIMessage =
-  DeskproUIMessageAppendToActiveTicketReplyBox
+  | DeskproUIMessageAppendToActiveTicketReplyBox
   | DeskproUIMessageAppendLinkToActiveTicketReplyBox
   | DeskproUIMessageAlertSuccess
   | DeskproUIMessageAlertError
-  | DeskproUIMessageAlertDismiss
-  ;
-
-export interface IDeskproUI {
-  send: (message: DeskproUIMessage) => Promise<void>;
-  appendContentToActiveTicketReplyBox: (content: string) => Promise<void>;
-  appendLinkToActiveTicketReplyBox(url: string, text: string, title?: string): Promise<void>;
-  alertSuccess: (text: string, duration?: number) => Promise<void>;
-  alertError: (text: string, duration?: number) => Promise<void>;
-  alertDismiss: () => Promise<void>;
-}
+  | DeskproUIMessageAlertDismiss;
