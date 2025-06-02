@@ -12,9 +12,50 @@ export type ContextType =
   | "global"
   | "admin_settings";
 
+type ContextData = {
+  app: {
+    id: number,
+    instanceId: number,
+    name: string,
+    title: string,
+    description: string,
+  },
+  env: {
+    release: string,
+    releaseBuildTime: number,
+    envId: string,
+    isDemo: boolean,
+    trialDaysLeft?: number | undefined,
+    isCloud: boolean,
+  },
+  currentAgent: {
+    id: number,
+    emails: object[],
+    primaryEmail: string | null,
+    name: string,
+    firstName: string,
+    lastName: string,
+    isAgent: boolean,
+    isAdmin: boolean,
+    isOnline: boolean,
+    isChatOnline: boolean,
+    avatarUrl: string | null,
+    language: string | null,
+    locale: string | null,
+    userGroups: {
+      id: string,
+      isEnabled: boolean,
+    }[],
+    teams: {
+      id: number,
+      name: string,
+    }[],
+  }
+};
+
 type BaseContext<Type extends ContextType, Data, Settings> = {
   type: Type;
-  data: Data;
+  data: ContextData & Data;
   settings: Settings;
 };
 
@@ -198,9 +239,9 @@ export type ChildMethods = {
   onElementEvent: ElementEventChildMethod;
   onAdminSettingsChange: (settings: Record<string, any>) => void;
   [name: string]:
-    | ChildMethod
-    | TargetActionChildMethod
-    | ElementEventChildMethod;
+  | ChildMethod
+  | TargetActionChildMethod
+  | ElementEventChildMethod;
 };
 
 export type TicketSidebarDeskproCallSender = {
@@ -353,7 +394,7 @@ export interface OAuth2Result {
   };
 }
 
-export class OAuth2Error extends Error {}
+export class OAuth2Error extends Error { }
 
 export type StartOAuth2LocalFlowResult = {
   state: string;

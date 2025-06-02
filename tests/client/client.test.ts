@@ -1,3 +1,4 @@
+// deno-lint-ignore-file no-explicit-any
 import test, { describe } from "node:test";
 import { createClient } from "@/client/client.ts";
 import { assertEquals } from "jsr:@std/assert";
@@ -9,7 +10,11 @@ describe("DeskproClient", () => {
     let called = false;
     client.onShow(() => called = true);
 
-    client.getParentMethods().onShow({ settings: {}, type: "user" });
+    client.getParentMethods().onShow({
+      settings: {},
+      type: "user",
+      data: {} as any,
+    });
 
     assertEquals(called, true);
   });
@@ -19,7 +24,7 @@ describe("DeskproClient", () => {
 
     let called = false;
     client.onReady(() => called = true);
-    client.getParentMethods().onReady({ settings: {}, type: "user" });
+    client.getParentMethods().onReady({ settings: {}, type: "user", data: {} as any });
 
     assertEquals(called, true);
   });
@@ -29,7 +34,7 @@ describe("DeskproClient", () => {
 
     let called = false;
     client.onChange(() => called = true);
-    client.getParentMethods().onChange({ settings: {}, type: "user" });
+    client.getParentMethods().onChange({ settings: {}, type: "user", data: {} as any });
 
     assertEquals(called, true);
   });
