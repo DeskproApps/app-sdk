@@ -2,31 +2,31 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import { Connection, connectToParent, Methods } from "penpal";
 import {
-  AppElement,
-  ChildMethod,
-  ChildMethods,
-  Context,
-  DeskproCallSender,
-  DeskproClientOptions,
-  DeskproUIMessage,
-  ElementEventChildMethod,
-  GetStateResponse,
-  IOAuth2,
+  type AppElement,
+  type ChildMethod,
+  type ChildMethods,
+  type Context,
+  type DeskproCallSender,
+  type DeskproClientOptions,
+  type DeskproUIMessage,
+  type ElementEventChildMethod,
+  type GetStateResponse,
+  type IOAuth2,
   OAuth2Error,
-  OAuth2Result,
-  PollOAuth2FlowResult,
-  PollOAuth2GlobalFlowResult,
-  PollOAuth2LocalFlowResult,
-  ProxyAuthPayload,
-  SetStateResponse,
-  StartOAuth2GlobalFlowResult,
-  StartOAuth2LocalFlowResult,
-  StateOptions,
-  TargetAction,
-  TargetActionChildMethod,
-  TargetActionOptions,
-  TargetActionType,
-  UserStateOptions,
+  type OAuth2Result,
+  type PollOAuth2FlowResult,
+  type PollOAuth2GlobalFlowResult,
+  type PollOAuth2LocalFlowResult,
+  type ProxyAuthPayload,
+  type SetStateResponse,
+  type StartOAuth2GlobalFlowResult,
+  type StartOAuth2LocalFlowResult,
+  type StateOptions,
+  type TargetAction,
+  type TargetActionChildMethod,
+  type TargetActionOptions,
+  type TargetActionType,
+  type UserStateOptions,
 } from "@/client/types.ts";
 
 class DeskproUI {
@@ -485,7 +485,7 @@ export class DeskproClient {
   }
 
   public onReady(cb: ChildMethod): void {
-    this.parentMethods.onReady = (context: Context) => {
+    this.parentMethods.onReady = (context: Context<any>) => {
       cb(context);
       if (this.resize && this.options.resizeAfterEvents) {
         this.resize();
@@ -494,7 +494,7 @@ export class DeskproClient {
   }
 
   public onShow(cb: ChildMethod): void {
-    this.parentMethods.onShow = (context: Context) => {
+    this.parentMethods.onShow = (context: Context<any>) => {
       cb(context);
       if (this.resize && this.options.resizeAfterEvents) {
         this.resize();
@@ -503,7 +503,7 @@ export class DeskproClient {
   }
 
   public onChange(cb: ChildMethod): void {
-    this.parentMethods.onChange = (context: Context) => {
+    this.parentMethods.onChange = (context: Context<any>) => {
       cb(context);
       if (this.resize && this.options.resizeAfterEvents) {
         this.resize();
@@ -545,7 +545,7 @@ export class DeskproClient {
     };
   }
 
-  public getEntityAssociation(name: string, entityId: string) {
+  public getEntityAssociation(name: string, entityId: string): EntityAssociation {
     return new EntityAssociation(this, name, entityId);
   }
 
@@ -657,7 +657,7 @@ export class DeskproClient {
     };
   }
 
-  public deskpro() {
+  public deskpro(): DeskproUI {
     return new DeskproUI(this);
   }
 
@@ -666,5 +666,6 @@ export class DeskproClient {
   }
 }
 
-export const createClient = (options: DeskproClientOptions = {}) =>
-  new DeskproClient(connectToParent, options);
+export function createClient(options: DeskproClientOptions = {}): DeskproClient {
+  return new DeskproClient(connectToParent, options);
+}
