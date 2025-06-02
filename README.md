@@ -53,14 +53,14 @@ client.run();
 
 As an aside, it's always best to "run" the client after the page is loaded, the
 easiest way to do this is to register the `client.run()` call as a
-`document.onload` method:
+`window.onload` method:
 
 ```javascript
 import { createClient } from "@deskpro/app-sdk";
 
 const client = createClient();
 
-document.onload = () => client.run();
+window.onload = () => client.run();
 
 // ...
 ```
@@ -75,7 +75,7 @@ import { createClient, proxyFetch } from "@deskpro/app-sdk";
 
 const client = createClient();
 
-document.onload = () => client.run();
+window.onload = () => client.run();
 
 proxyFetch(client).then((dpFetch) => {
   // Use dpFetch() just like you would use fetch() natively.

@@ -1,6 +1,6 @@
 // deno-lint-ignore-file require-await no-explicit-any
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { Connection, connectToParent, Methods } from "penpal";
+import { type Connection, connectToParent, type Methods } from "penpal";
 import {
   type AppElement,
   type ChildMethod,
@@ -545,7 +545,10 @@ export class DeskproClient {
     };
   }
 
-  public getEntityAssociation(name: string, entityId: string): EntityAssociation {
+  public getEntityAssociation(
+    name: string,
+    entityId: string,
+  ): EntityAssociation {
     return new EntityAssociation(this, name, entityId);
   }
 
@@ -666,6 +669,8 @@ export class DeskproClient {
   }
 }
 
-export function createClient(options: DeskproClientOptions = {}): DeskproClient {
+export function createClient(
+  options: DeskproClientOptions = {},
+): DeskproClient {
   return new DeskproClient(connectToParent, options);
 }
