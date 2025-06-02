@@ -24,7 +24,11 @@ describe("DeskproClient", () => {
 
     let called = false;
     client.onReady(() => called = true);
-    client.getParentMethods().onReady({ settings: {}, type: "user", data: {} as any });
+    client.getParentMethods().onReady({
+      settings: {},
+      type: "user",
+      data: {} as any,
+    });
 
     assertEquals(called, true);
   });
@@ -34,7 +38,11 @@ describe("DeskproClient", () => {
 
     let called = false;
     client.onChange(() => called = true);
-    client.getParentMethods().onChange({ settings: {}, type: "user", data: {} as any });
+    client.getParentMethods().onChange({
+      settings: {},
+      type: "user",
+      data: {} as any,
+    });
 
     assertEquals(called, true);
   });
