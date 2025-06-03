@@ -98,19 +98,14 @@ jobs:
               deno run test
             fi
 
-            # Tag
-            #   @todo: This needs fixing/implementing
-            #   MILESTONE=$(echo "$LABELS" | grep -E 'major-version|minor-version' | head -1)
-            #   if [ -z "$MILESTONE" ]; then
-            #     MILESTONE="patch-version"
-            #   fi
-            #   NPM_MILE_STONE = $(echo "$MILESTONE" | sed 's/-version//g')
-            #   VERSION_NEW=$(deno run bumpManifestVer "$MILESTONE" "$VERSION" | tail -n 1)
-            #   deno fmt package.json
-            #   git tag -a $VERSION_NEW -m "Version $VERSION_NEW"
-
             # Build
-            deno run build
+            MILESTONE=$(echo "$LABELS" | grep -E 'major-version|minor-version' | head -1)
+            if [ -z "$MILESTONE" ]; then
+              MILESTONE="patch-version"
+            fi
+            DENO_MILESTONE = $(echo "$MILESTONE" | sed 's/-version//g')
+            deno task build -- "$VERSION" "$DENO_MILESTONE"
+            # git tag -a $VERSION_NEW -m "Version $VERSION_NEW"
 
             # Push
             if [ "$PUSH_TAG" = "true" ]; then

@@ -1,4 +1,18 @@
 import { build, emptyDir } from "@deno/dnt";
+import {
+  inc as semverInc,
+  valid as semverValid,
+} from "https://deno.land/x/semver/mod.ts";
+
+const supportedIncrements = ["major", "minor", "patch"];
+
+const existingVersion = Deno.args[0] ?? undefined;
+const increment = Deno.args[1] ?? undefined;
+if (!semverValid(existingVersion) || !supportedIncrements.includes(increment)) {
+  console.error("Usage: deno task build <version> <increment>");
+  console.error("Example: deno task build 1.0.0 patch");
+  Deno.exit(1);
+}
 
 await emptyDir("./npm");
 
@@ -11,7 +25,10 @@ await build({
   packageManager: "pnpm",
   package: {
     name: "@deskpro/app-sdk",
-    version: Deno.args[0],
+    version: semverInc(
+      existingVersion,
+      increment as "major" | "minor" | "patch",
+    )!,
     description: "Deskpro Apps SDK",
     private: false,
     license: "MIT",
