@@ -103,7 +103,7 @@ jobs:
             if [ -z "$MILESTONE" ]; then
               MILESTONE="patch-version"
             fi
-            DENO_MILESTONE = $(echo "$MILESTONE" | sed 's/-version//g')
+            DENO_MILESTONE=$(echo "$MILESTONE" | sed 's/-version//g')
             deno task build -- "$VERSION" "$DENO_MILESTONE"
             # git tag -a $VERSION_NEW -m "Version $VERSION_NEW"
 
