@@ -51,33 +51,19 @@ client.onChange((context) => {
 client.run();
 ```
 
-As an aside, it's always best to "run" the client after the page is loaded, the
-easiest way to do this is to register the `client.run()` call as a
-`window.onload` method:
-
-```javascript
-import { createClient } from "@deskpro/app-sdk";
-
-const client = createClient();
-
-window.onload = () => client.run();
-
-// ...
-```
-
 To make `fetch` requests via the
 [app proxy](https://support.deskpro.com/en-US/guides/developers/app-proxy), and
 therefore gain access to app settings, we've provided a utility that wraps the
 native `fetch` function in the browser:
 
-```javascript
-import { createClient, proxyFetch } from "@deskpro/app-sdk";
+```typescript
+import { agentProxyFetch, createClient } from "@deskpro/app-sdk";
 
 const client = createClient();
 
-window.onload = () => client.run();
+client.run();
 
-proxyFetch(client).then((dpFetch) => {
+agentProxyFetch(client).then((dpFetch) => {
   // Use dpFetch() just like you would use fetch() natively.
   dpFetch("https://example.com/api/things?api_key=__key__").then((res) => {
     // ...
@@ -94,12 +80,12 @@ the URL, headers or body of the request.
 You can also control aspects of Deskpro itself, like the app title and icon
 badge count. To do this, use the client again to set these properties:
 
-```javascript
+```typescript
 import { createClient } from "@deskpro/app-sdk";
 
 const client = createClient();
 
-window.onload = () => client.run();
+client.run();
 
 client.setTitle("My New Title");
 client.setBadgeCount(42);

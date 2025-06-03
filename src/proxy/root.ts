@@ -1,10 +1,10 @@
-import type { DeskproClient } from "@/client/client.ts";
+import type Client from "@/client/Client.ts";
 
 export default async function rootProxyFetch(
-  client: DeskproClient,
+  client: Client,
   clientMethod: "getAdminGenericProxyAuth" | "getProxyAuth",
-) {
-  if (typeof client.getAdminGenericProxyAuth !== "function") {
+): Promise<(input: RequestInfo, init?: RequestInit) => Promise<Response>> {
+  if (typeof client[clientMethod] !== "function") {
     throw new Error(`
       Deskpro getProxyAuth() is undefined, please make sure that the run() method is called
       on the Deskpro client after the page is loaded

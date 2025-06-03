@@ -1,4 +1,4 @@
-export * from "@/client/client.ts";
 export * from "@/client/types.ts";
-export * from "@/proxy/admin.ts";
-export * from "@/proxy/agent.ts";
+export { default as DeskproClient, createClient } from "./client/Client.ts";
+export { default as agentProxyFetch } from "@/proxy/admin.ts";
+export { default as adminProxyFetch } from "@/proxy/agent.ts";

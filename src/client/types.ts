@@ -253,8 +253,6 @@ export type TicketSidebarDeskproCallSender = {
 };
 
 export type CoreCallSender = {
-  _setHeight: (height: number) => void;
-  _setWidth: (width: number | string) => void;
   focus: () => void;
   unfocus: () => void;
   _registerElement: (id: string, element: AppElement) => Promise<void>;
@@ -304,24 +302,13 @@ export type CoreCallSender = {
   ) => Promise<PollOAuth2FlowResult>;
   _setAdminSetting: (value: string) => void;
   _setAdminSettingInvalid: (message: string, settingName?: string) => void;
-  _sendDeskproUIMessage: (message: DeskproUIMessage) => Promise<void>;
+  _sendUIMessage: (message: UIMessage) => Promise<void>;
 };
 
 export type DeskproCallSender = CoreCallSender & TicketSidebarDeskproCallSender;
 
-export type DeskproClientOptions = {
-  /**
-   * Run client after page load when DOM is available
-   */
-  runAfterPageLoad?: boolean;
-
+export type ClientOptions = {
   settings?: Record<string, unknown>;
-
-  /**
-   * Call client.resize() after any app event is received and
-   * associated hook called
-   */
-  resizeAfterEvents?: boolean;
 };
 
 export type AppElement<Payload = any> =
@@ -434,7 +421,7 @@ export interface TargetActionOptions<Payload = any> {
 /**
  * Send arbitrary content to the "active" ticket reply box RTE
  */
-export type DeskproUIMessageAppendToActiveTicketReplyBox = {
+export type UIMessageAppendToActiveTicketReplyBox = {
   type: "append_to_active_ticket_reply_box";
   content: string;
 };
@@ -442,7 +429,7 @@ export type DeskproUIMessageAppendToActiveTicketReplyBox = {
 /**
  * Append link to the "active" ticket reply box RTE
  */
-export type DeskproUIMessageAppendLinkToActiveTicketReplyBox = {
+export type UIMessageAppendLinkToActiveTicketReplyBox = {
   type: "append_link_to_active_ticket_reply_box";
   url: string;
   text: string;
@@ -452,7 +439,7 @@ export type DeskproUIMessageAppendLinkToActiveTicketReplyBox = {
 /**
  * Trigger a success alert
  */
-export type DeskproUIMessageAlertSuccess = {
+export type UIMessageAlertSuccess = {
   type: "alert_success";
   text: string;
   duration?: number;
@@ -461,7 +448,7 @@ export type DeskproUIMessageAlertSuccess = {
 /**
  * Trigger a error alert
  */
-export type DeskproUIMessageAlertError = {
+export type UIMessageAlertError = {
   type: "alert_error";
   text: string;
   duration?: number;
@@ -470,13 +457,13 @@ export type DeskproUIMessageAlertError = {
 /**
  * Dismiss all alerts
  */
-export type DeskproUIMessageAlertDismiss = {
+export type UIMessageAlertDismiss = {
   type: "alert_dismiss";
 };
 
-export type DeskproUIMessage =
-  | DeskproUIMessageAppendToActiveTicketReplyBox
-  | DeskproUIMessageAppendLinkToActiveTicketReplyBox
-  | DeskproUIMessageAlertSuccess
-  | DeskproUIMessageAlertError
-  | DeskproUIMessageAlertDismiss;
+export type UIMessage =
+  | UIMessageAppendToActiveTicketReplyBox
+  | UIMessageAppendLinkToActiveTicketReplyBox
+  | UIMessageAlertSuccess
+  | UIMessageAlertError
+  | UIMessageAlertDismiss;

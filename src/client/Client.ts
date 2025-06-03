@@ -5,10 +5,9 @@ import {
   type AppElement,
   type ChildMethod,
   type ChildMethods,
+  type ClientOptions,
   type Context,
   type DeskproCallSender,
-  type DeskproClientOptions,
-  type DeskproUIMessage,
   type ElementEventChildMethod,
   type GetStateResponse,
   type IOAuth2,
@@ -26,96 +25,13 @@ import {
   type TargetActionChildMethod,
   type TargetActionOptions,
   type TargetActionType,
+  type UIMessage,
   type UserStateOptions,
 } from "@/client/types.ts";
+import EntityAssociation from "@/client/EntityAssociation.ts";
+import UI from "@/client/UI.ts";
 
-class DeskproUI {
-  constructor(
-    private client: DeskproClient,
-  ) {}
-
-  send(message: DeskproUIMessage): Promise<void> {
-    return this.client.sendDeskproUIMessage(message);
-  }
-
-  appendContentToActiveTicketReplyBox(content: string): Promise<void> {
-    return this.send({
-      type: "append_to_active_ticket_reply_box",
-      content,
-    });
-  }
-
-  appendLinkToActiveTicketReplyBox(
-    url: string,
-    text: string,
-    title?: string,
-  ): Promise<void> {
-    return this.send({
-      type: "append_link_to_active_ticket_reply_box",
-      url,
-      text,
-      title,
-    });
-  }
-
-  alertSuccess(text: string, duration?: number): Promise<void> {
-    return this.send({
-      type: "alert_success",
-      text,
-      duration,
-    });
-  }
-
-  alertError(text: string, duration?: number): Promise<void> {
-    return this.send({
-      type: "alert_error",
-      text,
-      duration,
-    });
-  }
-
-  alertDismiss(): Promise<void> {
-    return this.send({
-      type: "alert_dismiss",
-    });
-  }
-}
-
-class EntityAssociation {
-  constructor(
-    private client: DeskproClient,
-    private name: string,
-    private entityId: string,
-  ) {}
-
-  async get<T>(key: string): Promise<T | null> {
-    const value = await this.client.entityAssociationGet(
-      this.entityId,
-      this.name,
-      key,
-    );
-    return value ? JSON.parse(value) : null;
-  }
-
-  list(): Promise<string[]> {
-    return this.client.entityAssociationList(this.entityId, this.name);
-  }
-
-  set<T>(key: string, value?: T): Promise<void> {
-    return this.client.entityAssociationSet(
-      this.entityId,
-      this.name,
-      key,
-      value ? JSON.stringify(value) : undefined,
-    );
-  }
-
-  delete(key: string): Promise<void> {
-    return this.client.entityAssociationDelete(this.entityId, this.name, key);
-  }
-}
-
-export class DeskproClient {
+export default class Client {
   private parentMethods: ChildMethods = {
     onReady: () => undefined,
     onShow: () => undefined,
@@ -128,9 +44,6 @@ export class DeskproClient {
   // Core Methods
   public getProxyAuth: () => Promise<ProxyAuthPayload>;
   public getAdminGenericProxyAuth: () => Promise<ProxyAuthPayload>;
-  public resize: (height?: number) => void;
-  public setHeight: (height: number) => void;
-  public setWidth: (width: number | string) => void;
   public registerElement: (id: string, element: AppElement) => void;
   public deregisterElement: (id: string) => void;
 
@@ -223,20 +136,17 @@ export class DeskproClient {
   ) => void;
 
   // Deskpro UI
-  public sendDeskproUIMessage: (message: DeskproUIMessage) => Promise<void>;
+  public sendUIMessage: (message: UIMessage) => Promise<void>;
 
   constructor(
     private readonly parent: <T extends Methods = Methods>(
       options?: object,
     ) => Connection<T>,
-    private readonly options: DeskproClientOptions,
+    private readonly options: ClientOptions,
   ) {
     this.getProxyAuth = () => new Promise<ProxyAuthPayload>(() => {});
     this.getAdminGenericProxyAuth = () =>
       new Promise<ProxyAuthPayload>(() => {});
-    this.resize = () => {};
-    this.setWidth = () => {};
-    this.setHeight = () => {};
     this.registerElement = () => {};
     this.deregisterElement = () => {};
     this.setBadgeCount = () => {};
@@ -278,11 +188,7 @@ export class DeskproClient {
     this.setAdminSetting = async () => {};
     this.setAdminSettingInvalid = async () => {};
 
-    this.sendDeskproUIMessage = async () => {};
-
-    if (this.options.runAfterPageLoad) {
-      document.addEventListener("load", () => this.run());
-    }
+    this.sendUIMessage = async () => {};
   }
 
   public async run(): Promise<void> {
@@ -306,11 +212,6 @@ export class DeskproClient {
       this.getAdminGenericProxyAuth = parent._getAdminGenericProxyAuth;
     }
 
-    if (document && parent._setHeight) {
-      this.resize = (height?: number) =>
-        parent._setHeight(height ?? document.body.scrollHeight);
-    }
-
     if (parent._registerElement) {
       this.registerElement = (id: string, element: AppElement) =>
         parent._registerElement(id, element);
@@ -318,14 +219,6 @@ export class DeskproClient {
 
     if (parent._deregisterElement) {
       this.deregisterElement = (id: string) => parent._deregisterElement(id);
-    }
-
-    if (parent._setWidth) {
-      this.setWidth = parent._setWidth;
-    }
-
-    if (parent._setHeight) {
-      this.setHeight = parent._setHeight;
     }
 
     // Common
@@ -478,36 +371,27 @@ export class DeskproClient {
     }
 
     // Deskpro UI
-    if (parent._sendDeskproUIMessage) {
-      this.sendDeskproUIMessage = (message: DeskproUIMessage) =>
-        parent._sendDeskproUIMessage(message);
+    if (parent._sendUIMessage) {
+      this.sendUIMessage = (message: UIMessage) =>
+        parent._sendUIMessage(message);
     }
   }
 
   public onReady(cb: ChildMethod): void {
     this.parentMethods.onReady = (context: Context<any>) => {
       cb(context);
-      if (this.resize && this.options.resizeAfterEvents) {
-        this.resize();
-      }
     };
   }
 
   public onShow(cb: ChildMethod): void {
     this.parentMethods.onShow = (context: Context<any>) => {
       cb(context);
-      if (this.resize && this.options.resizeAfterEvents) {
-        this.resize();
-      }
     };
   }
 
   public onChange(cb: ChildMethod): void {
     this.parentMethods.onChange = (context: Context<any>) => {
       cb(context);
-      if (this.resize && this.options.resizeAfterEvents) {
-        this.resize();
-      }
     };
   }
 
@@ -516,9 +400,6 @@ export class DeskproClient {
       action: TargetAction<Payload>,
     ) => {
       cb(action);
-      if (this.resize && this.options.resizeAfterEvents) {
-        this.resize();
-      }
     };
   }
 
@@ -529,9 +410,6 @@ export class DeskproClient {
       payload: Payload,
     ) => {
       cb(id, type, payload);
-      if (this.resize && this.options.resizeAfterEvents) {
-        this.resize();
-      }
     };
   }
 
@@ -660,8 +538,8 @@ export class DeskproClient {
     };
   }
 
-  public deskpro(): DeskproUI {
-    return new DeskproUI(this);
+  public ui(): UI {
+    return new UI(this);
   }
 
   public getParentMethods(): ChildMethods {
@@ -670,7 +548,7 @@ export class DeskproClient {
 }
 
 export function createClient(
-  options: DeskproClientOptions = {},
-): DeskproClient {
-  return new DeskproClient(connectToParent, options);
+  options: ClientOptions = {},
+): Client {
+  return new Client(connectToParent, options);
 }
