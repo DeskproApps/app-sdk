@@ -5,9 +5,7 @@
   "exports": "./src/index.ts",
   "license": "MIT",
   "tasks": {
-    "test": "deno test",
-    "lint": "deno lint",
-    "format": "deno fmt"
+    "build": "deno clean && deno run --allow-env --allow-read --allow-write --allow-net --allow-run ./bin/build.ts"
   },
   "imports": {
     "@/": "./src/",

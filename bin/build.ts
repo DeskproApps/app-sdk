@@ -1,30 +1,32 @@
-/// <reference lib="deno.ns" />
-import { build, emptyDir } from "jsr:@deno/dnt";
+import { build, emptyDir } from "@deno/dnt";
 
 await emptyDir("./npm");
 
 await build({
-  entryPoints: ["./mod.ts"],
+  entryPoints: ["./src/index.ts"],
   outDir: "./npm",
   shims: {
     deno: true,
   },
+  packageManager: "pnpm",
   package: {
-    // package.json properties
-    name: "your-package",
+    name: "@deskpro/app-sdk",
     version: Deno.args[0],
-    description: "Your package.",
+    description: "Deskpro Apps SDK",
+    private: false,
     license: "MIT",
     repository: {
       type: "git",
-      url: "git+https://github.com/username/repo.git",
+      url: "git+https://github.com/deskproapps/app-sdk.git",
     },
     bugs: {
-      url: "https://github.com/username/repo/issues",
+      url: "https://github.com/deskproapps/app-sdk/issues",
     },
   },
+  compilerOptions: {
+    lib: ["ESNext", "DOM", "DOM.Iterable"],
+  },
   postBuild() {
-    // steps to run after building and before running the tests
     Deno.copyFileSync("LICENSE", "npm/LICENSE");
     Deno.copyFileSync("README.md", "npm/README.md");
   },

@@ -1,6 +1,12 @@
 {
   "name": "App Container",
-  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:latest",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "lts",
+      "pnpmVersion": "latest"
+    }
+  },
   "customizations": {
     "vscode": {
       "settings": {
@@ -13,8 +19,8 @@
     }
   },
   "mounts": [
-    "source=${localEnv:HOME}/.gitconfig,target=/home/vscode/.gitconfig,type=bind,consistency=cached",
-    "source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached"
+    "source=${localEnv:HOME}/.gitconfig,target=/home/node/.gitconfig,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.ssh,target=/home/node/.ssh,type=bind,consistency=cached"
   ],
-  "onCreateCommand": "curl -fsSL https://deno.land/x/install/install.sh | sh -s -- --yes && . \"/home/vscode/.deno/env\""
+  "onCreateCommand": "curl -fsSL https://deno.land/x/install/install.sh | sh -s -- --yes && . \"/home/node/.deno/env\""
 }
