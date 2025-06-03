@@ -1,6 +1,6 @@
 import adminProxyFetch from "@/proxy/admin.ts";
 import type Client from "@/client/Client.ts";
-import { assertRejects, assertEquals, assertInstanceOf } from "@std/assert";
+import { assertEquals, assertInstanceOf, assertRejects } from "@std/assert";
 
 // Mock client
 const mockClient = {
@@ -13,7 +13,7 @@ const mockClient = {
 
 Deno.test("adminProxyFetch throws when client not loaded", async () => {
   await assertRejects(async () => {
-    await adminProxyFetch({} as Client)
+    await adminProxyFetch({} as Client);
   });
 });
 

@@ -85,7 +85,7 @@ Deno.test("onTargetAction() callback", () => {
   assertEquals(called, true);
 });
 
-Deno.test('get ui returns', () => {
+Deno.test("get ui returns", () => {
   const client = createClient();
 
   const ui = client.ui();
@@ -93,7 +93,7 @@ Deno.test('get ui returns', () => {
   assertInstanceOf(ui, UI);
 });
 
-Deno.test('get EntityAssociation', () => {
+Deno.test("get EntityAssociation", () => {
   const client = createClient();
 
   const entityAssociation = client.getEntityAssociation("foo", "bar");
@@ -132,9 +132,8 @@ Deno.test("default callbacks exist", () => {
   });
 });
 
-
-Deno.test('can run with default values', () => {
-  const client = new Client((() => ({promise: {}})) as any, {});
+Deno.test("can run with default values", () => {
+  const client = new Client((() => ({ promise: {} })) as any, {});
 
   client.run();
 });

@@ -1,4 +1,3 @@
-
 import rootProxyFetch from "@/proxy/root.ts";
 import type Client from "@/client/Client.ts";
 import { assertEquals, assertInstanceOf } from "@std/assert";
