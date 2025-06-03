@@ -9,6 +9,10 @@ const supportedIncrements = ["major", "minor", "patch"];
 const existingVersion = Deno.args[0] ?? undefined;
 const increment = Deno.args[1] ?? undefined;
 if (!semverValid(existingVersion) || !supportedIncrements.includes(increment)) {
+  console.log({
+    existingVersion,
+    increment,
+  });
   console.error("Usage: deno task build <version> <increment>");
   console.error("Example: deno task build 1.0.0 patch");
   Deno.exit(1);
