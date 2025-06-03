@@ -95,7 +95,7 @@ jobs:
 
             # Test
             if [ "$RUN_TESTS" = true ]; then
-              deno run test
+              deno test
             fi
 
             # Build
