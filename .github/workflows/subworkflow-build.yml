@@ -91,6 +91,7 @@ jobs:
             if [ "$RUN_LINT" = true ]; then
               deno fmt --check
               deno lint
+              deno check --doc-only *.md
             fi
 
             # Test
