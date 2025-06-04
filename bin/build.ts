@@ -22,6 +22,11 @@ if (
   Deno.exit(1);
 }
 
+const version = semverInc(
+  flags.version!,
+  flags.milestone as "major" | "minor" | "patch",
+)!;
+
 await emptyDir(buildDir);
 
 await build({
@@ -33,10 +38,7 @@ await build({
   packageManager: "pnpm",
   package: {
     name: "@deskpro/app-sdk",
-    version: semverInc(
-      flags.version!,
-      flags.milestone as "major" | "minor" | "patch",
-    )!,
+    version,
     description: "Deskpro Apps SDK",
     private: false,
     license: "MIT",
@@ -55,3 +57,5 @@ await build({
     Deno.copyFileSync("README.md", `${buildDir}/README.md`);
   },
 });
+
+console.log(`Build completed successfully! Version: ${version}`);

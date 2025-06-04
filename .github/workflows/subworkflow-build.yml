@@ -70,6 +70,7 @@ jobs:
           echo version=$([ -z "$tag" ] && echo "0.0.0" || echo "${tag#v}") >> $GITHUB_OUTPUT;
 
       - name: Lint, Test, Build, and Tag
+        id: package
         uses: devcontainers/ci@8bf61b26e9c3a98f69cb6ce2f88d24ff59b785c6 #v0.3
         env:
           LABELS: "${{ steps.extract_labels.outputs.labels }}"
@@ -84,6 +85,7 @@ jobs:
             PUSH_TAG
             RUN_LINT
             RUN_TESTS
+            GITHUB_OUTPUT
           runCmd: |
             set -e
 
@@ -105,8 +107,10 @@ jobs:
               MILESTONE="patch-version"
             fi
             DENO_MILESTONE=$(echo "$MILESTONE" | sed 's/-version//g')
-            deno task build --version "$VERSION" --milestone "$DENO_MILESTONE"
-            # git tag -a $VERSION_NEW -m "Version $VERSION_NEW"
+            deno task build --version "$VERSION" --milestone "$DENO_MILESTONE" | tee /tmp/build.log
+            VERSION_NEW=$(tail -n 1 /tmp/build.log | grep -oP '[0-9]+\.[0-9]+\.[0-9]+')
+            git tag -a $VERSION_NEW -m "Version $VERSION_NEW"
+            echo "version=$VERSION_NEW" >> $GITHUB_OUTPUT
 
             # Push
             if [ "$PUSH_TAG" = "true" ]; then
@@ -115,3 +119,15 @@ jobs:
               deno config set //registry.npmjs.org/:_authToken $NODE_AUTH_TOKEN
               deno publish
             fi
+
+      - name: Create release
+        id: create_release
+        if: ${{ inputs.push-tag && steps.package.outputs.version != '0.0.0' }}
+        uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631 # v2.2.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.package.outputs.version }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
