@@ -104,7 +104,7 @@ jobs:
               MILESTONE="patch-version"
             fi
             DENO_MILESTONE=$(echo "$MILESTONE" | sed 's/-version//g')
-            deno task build -- "$VERSION" "$DENO_MILESTONE"
+            deno task build --version "$VERSION" --milestone "$DENO_MILESTONE"
             # git tag -a $VERSION_NEW -m "Version $VERSION_NEW"
 
             # Push

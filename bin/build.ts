@@ -3,17 +3,14 @@ import {
   inc as semverInc,
   valid as semverValid,
 } from "https://deno.land/x/semver/mod.ts";
+import { parseArgs } from "jsr:@std/cli/parse-args";
 
-const supportedIncrements = ["major", "minor", "patch"];
+const flags = parseArgs(Deno.args, {
+  string: ["version", "milestone"],
+});
 
-const existingVersion = Deno.args[0] ?? undefined;
-const increment = Deno.args[1] ?? undefined;
-if (!semverValid(existingVersion) || !supportedIncrements.includes(increment)) {
-  console.log({
-    existingVersion,
-    increment,
-  });
-  console.error("Usage: deno task build <version> <increment>");
+if (!semverValid(flags.version ?? '') || !["major", "minor", "patch"].includes(flags.milestone ?? '')) {
+  console.error("Usage: deno task build --version <version> --milestone <milestone>");
   console.error("Example: deno task build 1.0.0 patch");
   Deno.exit(1);
 }
@@ -30,8 +27,8 @@ await build({
   package: {
     name: "@deskpro/app-sdk",
     version: semverInc(
-      existingVersion,
-      increment as "major" | "minor" | "patch",
+      flags.version!,
+      flags.milestone as "major" | "minor" | "patch",
     )!,
     description: "Deskpro Apps SDK",
     private: false,
