@@ -5,6 +5,8 @@ import {
 } from "https://deno.land/x/semver/mod.ts";
 import { parseArgs } from "jsr:@std/cli/parse-args";
 
+const buildDir = "./npm";
+
 const flags = parseArgs(Deno.args, {
   string: ["version", "milestone"],
 });
@@ -20,11 +22,11 @@ if (
   Deno.exit(1);
 }
 
-await emptyDir("./npm");
+await emptyDir(buildDir);
 
 await build({
   entryPoints: ["./src/index.ts"],
-  outDir: "./npm",
+  outDir: buildDir,
   shims: {
     deno: true,
   },
@@ -50,6 +52,6 @@ await build({
     lib: ["ESNext", "DOM", "DOM.Iterable"],
   },
   postBuild() {
-    Deno.copyFileSync("README.md", "npm/README.md");
+    Deno.copyFileSync("README.md", `${buildDir}/README.md`);
   },
 });
