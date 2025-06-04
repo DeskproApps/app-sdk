@@ -9,13 +9,13 @@ and widgets.
 Install the SDK via `deno`, `pnpm` or `npm`:
 
 ```bash
-pnpm add @deskpro/app-sdk
-```
-
-OR
-
-```bash
-npm install @deskpro/app-sdk
+## deno
+deno add jsr:@deskpro/app-sdk # Using jsr.io
+## pnpm
+pnpm add jsr:@deskpro/app-sdk # Using jsr.io
+pnpm add @deskpro/app-sdk     # using npmjs.com
+## npm
+npm install @deskpro/app-sdk  # Using npmjs.com
 ```
 
 ## Basic Usage
