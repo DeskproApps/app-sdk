@@ -9,8 +9,13 @@ const flags = parseArgs(Deno.args, {
   string: ["version", "milestone"],
 });
 
-if (!semverValid(flags.version ?? '') || !["major", "minor", "patch"].includes(flags.milestone ?? '')) {
-  console.error("Usage: deno task build --version <version> --milestone <milestone>");
+if (
+  !semverValid(flags.version ?? "") ||
+  !["major", "minor", "patch"].includes(flags.milestone ?? "")
+) {
+  console.error(
+    "Usage: deno task build --version <version> --milestone <milestone>",
+  );
   console.error("Example: deno task build 1.0.0 patch");
   Deno.exit(1);
 }
