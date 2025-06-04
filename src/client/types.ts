@@ -263,7 +263,7 @@ export type DataGlobal = {
 };
 
 // This is a stub.
-export type DataAdminSettings =  {
+export type DataAdminSettings = {
   adminSettings?: undefined;
 };
 
