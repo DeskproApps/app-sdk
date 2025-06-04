@@ -256,10 +256,16 @@ export type DataCommunityTopic = {
     isReviewed: boolean;
   };
 };
+
+// This is a stub.
 export type DataGlobal = {
   global?: undefined;
 };
-export type DataAdminSettings = Record<string, any>;
+
+// This is a stub.
+export type DataAdminSettings =  {
+  adminSettings?: undefined;
+};
 
 export type ContextTicket<Settings> = BaseContext<
   "ticket",
@@ -298,6 +304,8 @@ export type ContextGlobal<Settings> = BaseContext<
   DataGlobal,
   Settings
 >;
+
+// This one is internally omitted, it doesn't get sent from Deskpro itselfs.
 export type ContextAdminSettings<Settings> = BaseContext<
   "admin_settings",
   DataAdminSettings,
