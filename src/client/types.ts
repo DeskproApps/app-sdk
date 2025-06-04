@@ -59,29 +59,262 @@ type BaseContext<Type extends ContextType, Data, Settings> = {
   settings: Settings;
 };
 
-// @todo: Fill this out with real values.
-export type DataTicket = Record<string, any>;
-export type DataUser = Record<string, any>;
-export type DataOrganisation = Record<string, any>;
-export type DataKnowledgeBase = Record<string, any>;
-export type DataNews = Record<string, any>;
-export type DataDownload = Record<string, any>;
-export type DataGuideTopic = Record<string, any>;
-export type DataCommunityTopic = Record<string, any>;
-export type DataGlobal = Record<string, any>;
+type DataTicketUserContact = {
+  id: string;
+  comment: string;
+  address: string;
+  city: string;
+  state: string;
+  zip: string;
+  country: string;
+} | {
+  id: string;
+  comment: string;
+  number: string;
+  type: string;
+  code: string;
+} | {
+  id: string;
+  comment: string;
+  url: string;
+} | {
+  id: string;
+  comment: string;
+  type: string;
+  username: string;
+  profileUrl: string;
+} | {
+  id: string;
+  comment: string;
+  type: string;
+  username: string;
+} | undefined;
+type DataTicketUser = {
+  id: string;
+  email: string;
+  emails: string[];
+  firstName: string;
+  lastName: string;
+  displayName: string;
+  language: string;
+  locale: string;
+  phoneNumbers: {
+    id: string;
+    ext: string;
+    label: string;
+    number: string;
+    guessedType: string;
+  }[];
+  primaryOrgMember: {
+    position: string;
+    isManager: string;
+    organization: {
+      id: string;
+      name: string;
+    };
+  } | undefined;
+  orgMembers: {
+    position: string;
+    isManager: string;
+    organization: {
+      id: string;
+      name: string;
+    };
+  }[];
+  contacts: DataTicketUserContact[];
+};
+export type DataTicket = {
+  ticket: {
+    id: string;
+    permalinkUrl: string;
+    subject: string;
+    status: string;
+    creationSystem: string;
+    emailAccountAddress: string;
+    receivedEmailAccountAddress: string;
+    primaryUser: DataTicketUser & {
+      customFields: Record<string, any>;
+    };
+    followers: DataTicketUser[];
+    organization: {
+      id: string;
+      name: string;
+      customFields: Record<string, any>;
+    };
+    attachments: {
+      id: string;
+      filename: string;
+      filesize: string;
+      contentType: string;
+      downloadUrl: string;
+    }[];
+    customFields: Record<string, any>;
+    billingCharges: {
+      id: string;
+      amount: string;
+      chargeTime: string;
+      dateCreated: string;
+      fields: Record<string, any>;
+    }[];
+    team?: {
+      id: string;
+      name: string;
+    } | undefined;
+    ref: string;
+    labels: {
+      id: string;
+      name: string;
+    }[];
+    department?:
+      | {
+        id: string | undefined;
+        name: string;
+      }
+      | undefined;
+    urgency: string;
+    agent: DataTicketUser;
+    ccs: DataTicketUser[];
+    createdAt: string | undefined;
+    resolvedAt: string | undefined;
+    archivedAt: string | undefined;
+    lastAgentReplyAt: string | undefined;
+    lastUserReplyAt: string | undefined;
+    statusChangedAt: string | undefined;
+  };
+};
+export type DataUser = {
+  user: {
+    id: string;
+    name: string;
+    firstName: string;
+    lastName: string;
+    titlePrefix: string;
+    isDisabled: boolean | "";
+    isAgent: boolean | "";
+    isConfirmed: boolean | "";
+    emails: string[];
+    primaryEmail: string;
+    customFields: Record<string, any>;
+    language: string;
+    locale: string;
+    phoneNumbers: {
+      id: string;
+      number: string;
+      guessedType: string;
+      ext: string | null;
+      label: string | null;
+    }[];
+  };
+};
+export type DataOrganisation = {
+  organisation: {
+    id: string;
+    name: string;
+    summary: string;
+    dateCreated: string;
+    customFields: Record<string, any>;
+  };
+};
+export type DataKnowledgeBase = {
+  article: {
+    id: string;
+    title: string;
+    content: string;
+    status: string;
+  };
+};
+export type DataNews = {
+  post: {
+    id: string;
+    title: string;
+    content: string;
+    status: string;
+  };
+};
+export type DataDownload = {
+  file: {
+    id: string;
+    title: string;
+    content: string;
+    status: string;
+    permalink: string;
+  };
+};
+export type DataGuideTopic = {
+  topic: {
+    id: string;
+    title: string;
+    content: string;
+    status: string;
+  };
+};
+export type DataCommunityTopic = {
+  topic: {
+    id: string;
+    title: string;
+    content: string;
+    isReviewed: boolean;
+  };
+};
+export type DataGlobal = {
+  global?: undefined;
+};
 export type DataAdminSettings = Record<string, any>;
 
+export type ContextTicket<Settings> = BaseContext<
+  "ticket",
+  DataTicket,
+  Settings
+>;
+export type ContextUser<Settings> = BaseContext<"user", DataUser, Settings>;
+export type ContextOrganisation<Settings> = BaseContext<
+  "organisation",
+  DataOrganisation,
+  Settings
+>;
+export type ContextKnowledge_base<Settings> = BaseContext<
+  "knowledge_base",
+  DataKnowledgeBase,
+  Settings
+>;
+export type ContextNews<Settings> = BaseContext<"news", DataNews, Settings>;
+export type ContextDownload<Settings> = BaseContext<
+  "download",
+  DataDownload,
+  Settings
+>;
+export type ContextGuideTopic<Settings> = BaseContext<
+  "guide_topic",
+  DataGuideTopic,
+  Settings
+>;
+export type ContextCommunityTopic<Settings> = BaseContext<
+  "community_topic",
+  DataCommunityTopic,
+  Settings
+>;
+export type ContextGlobal<Settings> = BaseContext<
+  "global",
+  DataGlobal,
+  Settings
+>;
+export type ContextAdminSettings<Settings> = BaseContext<
+  "admin_settings",
+  DataAdminSettings,
+  Settings
+>;
+
 export type Context<Settings> =
-  | BaseContext<"ticket", DataTicket, Settings>
-  | BaseContext<"user", DataUser, Settings>
-  | BaseContext<"organisation", DataOrganisation, Settings>
-  | BaseContext<"knowledge_base", DataKnowledgeBase, Settings>
-  | BaseContext<"news", DataNews, Settings>
-  | BaseContext<"download", DataDownload, Settings>
-  | BaseContext<"guide_topic", DataGuideTopic, Settings>
-  | BaseContext<"community_topic", DataCommunityTopic, Settings>
-  | BaseContext<"global", DataGlobal, Settings>
-  | BaseContext<"admin_settings", DataAdminSettings, Settings>;
+  | ContextTicket<Settings>
+  | ContextUser<Settings>
+  | ContextOrganisation<Settings>
+  | ContextKnowledge_base<Settings>
+  | ContextNews<Settings>
+  | ContextDownload<Settings>
+  | ContextGuideTopic<Settings>
+  | ContextCommunityTopic<Settings>
+  | ContextGlobal<Settings>
+  | ContextAdminSettings<Settings>;
 
 export interface ProxyAuthPayload {
   proxyUrl: string;
@@ -230,6 +463,15 @@ export type ElementEventChildMethod = <Payload = any>(
   type: string,
   payload?: Payload,
 ) => void;
+
+export enum EventType {
+  READY = "ready.app.deskpro",
+  SHOW = "show.app.deskpro",
+  CHANGE = "change.app.deskpro",
+  TARGET_ACTION = "target_action.app.deskpro",
+  TARGET_ELEMENT_EVENT = "target_element_event.app.deskpro",
+  ADMIN_SETTINGS_CHANGE = "change.settings.admin.app.deskpro",
+}
 
 export type ChildMethods = {
   onReady: ChildMethod;

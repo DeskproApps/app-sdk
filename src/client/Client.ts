@@ -1,5 +1,4 @@
 // deno-lint-ignore-file require-await no-explicit-any
-/* eslint-disable @typescript-eslint/no-empty-function */
 import { type Connection, connectToParent, type Methods } from "penpal";
 import {
   type AppElement,
