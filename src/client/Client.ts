@@ -20,7 +20,6 @@ import {
   type TargetActionOptions,
   type TargetActionType,
   type UIMessage,
-  type UserStateOptions,
 } from "@/client/types.ts";
 import EntityAssociation from "@/client/EntityAssociation.ts";
 import UI from "@/client/UI.ts";
@@ -172,7 +171,7 @@ export default class Client<Settings extends object = never> {
   public setUserState: <T>(
     name: string,
     value: T,
-    options?: UserStateOptions,
+    options?: StateOptions,
   ) => Promise<SetStateResponse>;
   public getState: <T>(name: string) => Promise<GetStateResponse<T>[]>;
   public getUserState: <T>(name: string) => Promise<GetStateResponse<T>[]>;
@@ -347,7 +346,7 @@ export default class Client<Settings extends object = never> {
       this.setUserState = <T>(
         name: string,
         value: T,
-        options?: UserStateOptions,
+        options?: StateOptions,
       ) => parent._userStateSet(name, JSON.stringify(value), options);
     }
 

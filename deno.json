@@ -1,11 +1,12 @@
 {
-  "name": "@deskpro/app-sdk-test",
-  "version": "0.0.1",
+  "name": "@deskpro/app-sdk",
+  "version": "0.0.0",
   "description": "Deskpro Apps SDK",
   "exports": "./src/index.ts",
   "license": "MIT",
   "tasks": {
-    "build": "deno clean && deno run --allow-env --allow-read --allow-write --allow-net --allow-run ./bin/build.ts"
+    "build": "deno clean && deno run --allow-env --allow-read --allow-write --allow-net --allow-run ./bin/build.ts",
+    "check": "deno fmt --check && deno lint && deno check --doc-only *.md && deno test"
   },
   "exclude": ["npm/"],
   "imports": {
