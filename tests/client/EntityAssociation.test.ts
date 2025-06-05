@@ -52,13 +52,13 @@ Deno.test("set() sends serialized value", async () => {
     entityAssociationSet: (_e, _n, key, value) => {
       capturedKey = key;
       capturedValue = value ?? "";
-      return Promise.resolve();
+      return Promise.resolve(true);
     },
   });
 
   const assoc = new EntityAssociation(client, "Test", "entity-1");
-  await assoc.set("myKey", { foo: "bar" });
 
+  assertEquals(true, await assoc.set("myKey", { foo: "bar" }));
   assertEquals(capturedKey, "myKey");
   assertEquals(capturedValue, JSON.stringify({ foo: "bar" }));
 });
@@ -69,12 +69,13 @@ Deno.test("set() with undefined value passes undefined", async () => {
   const client = createStubClient({
     entityAssociationSet: (_e, _n, _k, v) => {
       captured = typeof v === "undefined" ? "undefined" : "value";
-      return Promise.resolve();
+      return Promise.resolve(true);
     },
   });
 
   const assoc = new EntityAssociation(client, "Test", "entity-1");
-  await assoc.set("empty");
+
+  assertEquals(true, await assoc.set("empty"));
   assertEquals(captured, "undefined");
 });
 
@@ -84,11 +85,24 @@ Deno.test("delete() is called with correct key", async () => {
   const client = createStubClient({
     entityAssociationDelete: (_e, _n, key) => {
       deletedKey = key;
-      return Promise.resolve();
+      return Promise.resolve(true);
     },
   });
 
   const assoc = new EntityAssociation(client, "Test", "entity-1");
-  await assoc.delete("delete-me");
+
+  assertEquals(true, await assoc.delete("delete-me"));
   assertEquals(deletedKey, "delete-me");
+});
+
+Deno.test("count() is called", async () => {
+  const client = createStubClient({
+    entityAssociationCountEntities: (_e, _n) => {
+      return Promise.resolve(12);
+    },
+  });
+
+  const assoc = new EntityAssociation(client, "Test", "entity-1");
+
+  assertEquals(12, await assoc.count());
 });

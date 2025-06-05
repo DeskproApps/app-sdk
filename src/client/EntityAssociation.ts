@@ -20,7 +20,7 @@ export default class EntityAssociation {
     return this.client.entityAssociationList(this.entityId, this.name);
   }
 
-  set<T>(key: string, value?: T): Promise<void> {
+  set<T>(key: string, value?: T): Promise<boolean> {
     return this.client.entityAssociationSet(
       this.entityId,
       this.name,
@@ -29,7 +29,11 @@ export default class EntityAssociation {
     );
   }
 
-  delete(key: string): Promise<void> {
+  delete(key: string): Promise<boolean> {
     return this.client.entityAssociationDelete(this.entityId, this.name, key);
+  }
+
+  count(): Promise<number> {
+    return this.client.entityAssociationCountEntities(this.entityId, this.name);
   }
 }
