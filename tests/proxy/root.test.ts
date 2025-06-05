@@ -9,7 +9,7 @@ const mockClient = {
     proxyUrl: "https://proxy.example.com",
     token: "test-token",
   }),
-} as Client;
+} as Client<never>;
 
 Deno.test("rootProxyFetch handles no bespoke headers", async () => {
   const proxyFetch = await rootProxyFetch(mockClient, "getProxyAuth");

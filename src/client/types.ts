@@ -445,8 +445,8 @@ export type TargetActionData =
   | OnTicketReplyEmailTargetAction;
 
 export type TargetAction<
+  Settings extends object,
   Payload = any,
-  Settings extends object = Record<string, never>,
 > = {
   name: string;
   type: TargetActionType;
@@ -463,16 +463,10 @@ export type TargetElementEvent<Payload = any> = {
 
 export type AppElementPayload<T = any> = T;
 
-export type ChildMethod = (context: Context<any>) => void;
+export type ChildMethod<Settings> = (context: Context<Settings>) => void;
 
-export type TargetActionChildMethod<Payload = any> = <Payload>(
-  action: TargetAction<Payload>,
-) => void;
-
-export type ElementEventChildMethod = <Payload = any>(
-  id: string,
-  type: string,
-  payload?: Payload,
+export type ElementEvent<Payload> = (
+  elementEvent: { id: string; type: string; payload?: Payload },
 ) => void;
 
 export enum EventType {
@@ -483,86 +477,6 @@ export enum EventType {
   TARGET_ELEMENT_EVENT = "target_element_event.app.deskpro",
   ADMIN_SETTINGS_CHANGE = "change.settings.admin.app.deskpro",
 }
-
-export type ChildMethods = {
-  onReady: ChildMethod;
-  onShow: ChildMethod;
-  onChange: ChildMethod;
-  onTargetAction: TargetActionChildMethod;
-  onElementEvent: ElementEventChildMethod;
-  onAdminSettingsChange: (settings: Record<string, any>) => void;
-  [name: string]:
-    | ChildMethod
-    | TargetActionChildMethod
-    | ElementEventChildMethod;
-};
-
-export type TicketSidebarDeskproCallSender = {
-  setTitle: (title: string) => void;
-  openContact: (
-    contact: Partial<{ id: number; emailAddress: string; phoneNumber: string }>,
-  ) => void;
-  setBadgeCount: (count: number) => void;
-};
-
-export type CoreCallSender = {
-  focus: () => void;
-  unfocus: () => void;
-  _registerElement: (id: string, element: AppElement) => Promise<void>;
-  _deregisterElement: (id: string) => Promise<void>;
-  _getProxyAuth: () => Promise<ProxyAuthPayload>;
-  _getAdminGenericProxyAuth: () => Promise<ProxyAuthPayload>;
-  _entityAssociationGet: () => Promise<any>;
-  _entityAssociationSet: () => Promise<boolean>;
-  _entityAssociationList: () => Promise<any[]>;
-  _entityAssociationDelete: () => Promise<boolean>;
-  _entityAssociationCountEntities: () => Promise<number>;
-  _stateSet: (
-    name: string,
-    value: string,
-    options?: StateOptions,
-  ) => Promise<any>;
-  _userStateSet: (
-    name: string,
-    value: string,
-    options?: StateOptions,
-  ) => Promise<any>;
-  _stateGet: (name: string) => Promise<string>;
-  _userStateGet: (name: string) => Promise<any>;
-  _stateHas: (name: string) => Promise<boolean>;
-  _userStateHas: (name: string) => Promise<boolean>;
-  _stateDelete: (name: string) => Promise<any>;
-  _userStateDelete: (name: string) => Promise<any>;
-  _settingSet: (name: string, value: any) => Promise<any>;
-  _settingsSet: (settings: string) => Promise<any>;
-  _blockingSet: (blocking: boolean) => Promise<any>;
-  _registerTargetAction: (
-    name: string,
-    type: TargetActionType,
-    options?: TargetActionOptions,
-  ) => Promise<void>;
-  _deregisterTargetAction: (name: string) => Promise<void>;
-  _startOAuth2LocalFlow: (
-    codeAcquisitionPattern: string,
-    timeout: number,
-  ) => Promise<StartOAuth2LocalFlowResult>;
-  _startOAuth2GlobalFlow: (
-    clientId: string,
-    timeout: number,
-  ) => Promise<StartOAuth2GlobalFlowResult>;
-  _pollOAuth2Flow: <PollOAuth2FlowResult>(
-    state: string,
-  ) => Promise<PollOAuth2FlowResult>;
-  _setAdminSetting: (value: string) => void;
-  _setAdminSettingInvalid: (message: string, settingName?: string) => void;
-  _sendUIMessage: (message: UIMessage) => Promise<void>;
-};
-
-export type DeskproCallSender = CoreCallSender & TicketSidebarDeskproCallSender;
-
-export type ClientOptions = {
-  settings?: Record<string, unknown>;
-};
 
 export type AppElement<Payload = any> =
   | {

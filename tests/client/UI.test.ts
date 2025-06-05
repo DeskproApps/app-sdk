@@ -1,12 +1,12 @@
 import { assertSpyCalls, spy } from "https://deno.land/std/testing/mock.ts";
 import { assertEquals } from "jsr:@std/assert";
-import UI from "../../src/client/UI.ts";
+import UI from "@/client/UI.ts";
 import type Client from "@/client/Client.ts";
 
 Deno.test("UI methods call client.sendUIMessage with correct messages", async (test) => {
   const mockSend = spy((_msg: unknown) => Promise.resolve());
   const mockClient = { sendUIMessage: mockSend };
-  const ui = new UI(mockClient as unknown as Client);
+  const ui = new UI(mockClient as unknown as Client<never>);
 
   await test.step("send() forwards the message as-is", async () => {
     const msg = { type: "custom", data: 123 };

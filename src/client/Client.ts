@@ -2,12 +2,8 @@
 import { type Connection, connectToParent, type Methods } from "penpal";
 import {
   type AppElement,
-  type ChildMethod,
-  type ChildMethods,
-  type ClientOptions,
   type Context,
-  type DeskproCallSender,
-  type ElementEventChildMethod,
+  type ElementEvent,
   type GetStateResponse,
   type IOAuth2,
   OAuth2Error,
@@ -21,7 +17,6 @@ import {
   type StartOAuth2LocalFlowResult,
   type StateOptions,
   type TargetAction,
-  type TargetActionChildMethod,
   type TargetActionOptions,
   type TargetActionType,
   type UIMessage,
@@ -30,14 +25,101 @@ import {
 import EntityAssociation from "@/client/EntityAssociation.ts";
 import UI from "@/client/UI.ts";
 
-export default class Client<Settings extends object = Record<string, never>> {
-  private parentMethods: ChildMethods = {
-    onReady: () => undefined,
-    onShow: () => undefined,
-    onChange: () => undefined,
-    onTargetAction: () => undefined,
-    onElementEvent: () => undefined,
-    onAdminSettingsChange: () => undefined,
+type ListenerCallbackMap<Settings extends object> = {
+  ready: (context: Context<Settings>) => void;
+  show: (context: Context<Settings>) => void;
+  change: (context: Context<Settings>) => void;
+  targetAction: (action: TargetAction<Settings>) => void;
+  elementEvent: (action: ElementEvent<any>) => void;
+  adminSettingsChange: (action: Record<string, any>) => void;
+};
+
+type ListenerCallbackName<Settings extends object> = keyof ListenerCallbackMap<
+  Settings
+>;
+
+type DeskproCallSender = {
+  openContact: (
+    contact: Partial<{ id: number; emailAddress: string; phoneNumber: string }>,
+  ) => void;
+  setBadgeCount: (count: number) => void;
+  setTitle: (title: string) => void;
+  focus: () => void;
+  unfocus: () => void;
+  _registerElement: (id: string, element: AppElement) => Promise<void>;
+  _deregisterElement: (id: string) => Promise<void>;
+  _getProxyAuth: () => Promise<ProxyAuthPayload>;
+  _getAdminGenericProxyAuth: () => Promise<ProxyAuthPayload>;
+  _entityAssociationGet: () => Promise<any>;
+  _entityAssociationSet: () => Promise<boolean>;
+  _entityAssociationList: () => Promise<any[]>;
+  _entityAssociationDelete: () => Promise<boolean>;
+  _entityAssociationCountEntities: () => Promise<number>;
+  _stateSet: (
+    name: string,
+    value: string,
+    options?: StateOptions,
+  ) => Promise<any>;
+  _userStateSet: (
+    name: string,
+    value: string,
+    options?: StateOptions,
+  ) => Promise<any>;
+  _stateGet: (name: string) => Promise<string>;
+  _userStateGet: (name: string) => Promise<any>;
+  _stateHas: (name: string) => Promise<boolean>;
+  _userStateHas: (name: string) => Promise<boolean>;
+  _stateDelete: (name: string) => Promise<any>;
+  _userStateDelete: (name: string) => Promise<any>;
+  _settingSet: (name: string, value: any) => Promise<any>;
+  _settingsSet: (settings: string) => Promise<any>;
+  _blockingSet: (blocking: boolean) => Promise<any>;
+  _registerTargetAction: (
+    name: string,
+    type: TargetActionType,
+    options?: TargetActionOptions,
+  ) => Promise<void>;
+  _deregisterTargetAction: (name: string) => Promise<void>;
+  _startOAuth2LocalFlow: (
+    codeAcquisitionPattern: string,
+    timeout: number,
+  ) => Promise<StartOAuth2LocalFlowResult>;
+  _startOAuth2GlobalFlow: (
+    clientId: string,
+    timeout: number,
+  ) => Promise<StartOAuth2GlobalFlowResult>;
+  _pollOAuth2Flow: <PollOAuth2FlowResult>(
+    state: string,
+  ) => Promise<PollOAuth2FlowResult>;
+  _setAdminSetting: (value: string) => void;
+  _setAdminSettingInvalid: (message: string, settingName?: string) => void;
+  _sendUIMessage: (message: UIMessage) => Promise<void>;
+};
+
+export default class Client<Settings extends object = never> {
+  private listeners: {
+    [Key in ListenerCallbackName<Settings>]: ListenerCallbackMap<
+      Settings
+    >[Key][];
+  } = {
+    ready: [],
+    show: [],
+    change: [],
+    targetAction: [],
+    elementEvent: [],
+    adminSettingsChange: [],
+  };
+
+  private parentMethods = {
+    _onReady: (context: Context<Settings>) => this.emit("ready", context),
+    _onShow: (context: Context<Settings>) => this.emit("show", context),
+    _onChange: (context: Context<Settings>) => this.emit("change", context),
+    _onTargetAction: (action: { action: TargetAction<any, Settings> }) =>
+      this.emit("targetAction", action.action),
+    _onElementEvent: (id: string, type: string, payload: any) =>
+      this.emit("elementEvent", { id, type, payload } as any),
+    _onAdminSettingsChange: (settings: Record<string, any>) =>
+      this.emit("adminSettingsChange", settings),
   };
 
   // Core Methods
@@ -141,7 +223,6 @@ export default class Client<Settings extends object = Record<string, never>> {
     private readonly parent: <T extends Methods = Methods>(
       options?: object,
     ) => Connection<T>,
-    private readonly options: ClientOptions,
   ) {
     this.getProxyAuth = () => new Promise<ProxyAuthPayload>(() => {});
     this.getAdminGenericProxyAuth = () =>
@@ -192,14 +273,7 @@ export default class Client<Settings extends object = Record<string, never>> {
 
   public async run(): Promise<void> {
     const parent = await this.parent<DeskproCallSender>({
-      methods: {
-        _onReady: this.parentMethods.onReady,
-        _onShow: this.parentMethods.onShow,
-        _onChange: this.parentMethods.onChange,
-        _onTargetAction: this.parentMethods.onTargetAction,
-        _onElementEvent: this.parentMethods.onElementEvent,
-        _onAdminSettingsChange: this.parentMethods.onAdminSettingsChange,
-      },
+      methods: this.parentMethods,
     }).promise;
 
     // Core
@@ -376,57 +450,36 @@ export default class Client<Settings extends object = Record<string, never>> {
     }
   }
 
-  public onReady(cb: ChildMethod): void {
-    this.parentMethods.onReady = (context: Context<Settings>) => {
-      cb(context);
-    };
-  }
-
-  public onShow(cb: ChildMethod): void {
-    this.parentMethods.onShow = (context: Context<Settings>) => {
-      cb(context);
-    };
-  }
-
-  public onChange(cb: ChildMethod): void {
-    this.parentMethods.onChange = (context: Context<Settings>) => {
-      cb(context);
-    };
-  }
-
-  public onTargetAction(cb: TargetActionChildMethod): void {
-    this.parentMethods.onTargetAction = <Payload>(
-      action: TargetAction<Payload>,
-    ) => {
-      cb(action);
-    };
-  }
-
-  public onElementEvent(cb: ElementEventChildMethod): void {
-    this.parentMethods.onElementEvent = <Payload>(
-      id: string,
-      type: string,
-      payload: Payload,
-    ) => {
-      cb(id, type, payload);
-    };
-  }
-
-  public onAdminSettingsChange(
-    cb: (settings: Record<string, any>) => void,
-  ): void {
-    this.parentMethods.onAdminSettingsChange = (
-      settings: Record<string, any>,
-    ) => {
-      cb(settings);
-    };
-  }
-
   public getEntityAssociation(
     name: string,
     entityId: string,
-  ): EntityAssociation {
-    return new EntityAssociation(this, name, entityId);
+  ): EntityAssociation<Settings> {
+    return new EntityAssociation<Settings>(this, name, entityId);
+  }
+
+  private emit<Key extends ListenerCallbackName<Settings>>(
+    event: Key,
+    arg: Parameters<ListenerCallbackMap<Settings>[Key]>[0],
+  ): void {
+    for (const cb of this.listeners[event]) {
+      cb(arg as any); // Couldn't get types to work so using `as any` for now.
+    }
+  }
+
+  public subscribe<Key extends ListenerCallbackName<Settings>>(
+    event: Key,
+    callback: ListenerCallbackMap<Settings>[Key],
+  ): void {
+    this.listeners[event].push(callback);
+  }
+
+  public unsubscribe<Key extends ListenerCallbackName<Settings>>(
+    event: Key,
+    callback: ListenerCallbackMap<Settings>[Key],
+  ): void {
+    this.listeners[event] = this.listeners[event].filter(
+      (cb) => cb !== callback,
+    ) as any; // Couldn't get `is` to work with filter so using `as any` for now.
   }
 
   public async startOauth2Local(
@@ -537,17 +590,13 @@ export default class Client<Settings extends object = Record<string, never>> {
     };
   }
 
-  public ui(): UI {
-    return new UI(this);
-  }
-
-  public getParentMethods(): ChildMethods {
-    return this.parentMethods;
+  public ui(): UI<Settings> {
+    return new UI<Settings>(this);
   }
 }
 
-export function createClient<Settings extends object = Record<string, never>>(
-  options: ClientOptions = {},
-): Client {
-  return new Client<Settings>(connectToParent, options);
+export function createClient<
+  Settings extends object = Record<string, never>,
+>(): Client<Settings> {
+  return new Client<Settings>(connectToParent);
 }

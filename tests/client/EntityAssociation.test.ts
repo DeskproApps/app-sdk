@@ -3,14 +3,14 @@ import type Client from "@/client/Client.ts";
 import EntityAssociation from "@/client/EntityAssociation.ts";
 
 // Helper to create a stub Client with default method overrides
-function createStubClient(overrides: Partial<Client>): Client {
+function createStubClient(overrides: Partial<Client<never>>): Client<never> {
   return {
     entityAssociationGet: () => Promise.resolve(undefined),
     entityAssociationSet: () => Promise.resolve(),
     entityAssociationList: () => Promise.resolve([]),
     entityAssociationDelete: () => Promise.resolve(),
     ...overrides,
-  } as Client;
+  } as Client<never>;
 }
 
 Deno.test("get() returns parsed value", async () => {

@@ -9,15 +9,15 @@ const mockClient = {
     proxyUrl: "https://proxy.example.com",
     token: "test-token",
   }),
-} as Client;
+} as Client<never>;
 
-Deno.test("adminProxyFetch throws when client not loaded", async () => {
+Deno.test("throws when client not loaded", async () => {
   await assertRejects(async () => {
-    await adminProxyFetch({} as Client);
+    await adminProxyFetch({} as Client<never>);
   });
 });
 
-Deno.test("adminProxyFetch returns a proxy fetch function", async () => {
+Deno.test("returns a proxy fetch function", async () => {
   const proxyFetch = await adminProxyFetch(mockClient);
 
   const mockRequestInfo = "https://api.example.com/data";

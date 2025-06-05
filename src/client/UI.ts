@@ -1,9 +1,9 @@
 import type Client from "@/client/Client.ts";
 import type { UIMessage } from "@/client/types.ts";
 
-export default class UI {
+export default class UI<Settings extends object> {
   constructor(
-    private client: Client,
+    private client: Client<Settings>,
   ) {}
 
   send(message: UIMessage): Promise<void> {

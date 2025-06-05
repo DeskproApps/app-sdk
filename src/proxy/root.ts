@@ -1,7 +1,7 @@
 import type Client from "@/client/Client.ts";
 
-export default async function rootProxyFetch(
-  client: Client,
+export default async function rootProxyFetch<Settings extends object>(
+  client: Client<Settings>,
   clientMethod: "getAdminGenericProxyAuth" | "getProxyAuth",
 ): Promise<(input: RequestInfo, init?: RequestInit) => Promise<Response>> {
   if (typeof client[clientMethod] !== "function") {

@@ -1,6 +1,6 @@
 {
-  "name": "@deskpro/app-sdk",
-  "version": "0.0.0",
+  "name": "@deskpro/app-sdk-test",
+  "version": "0.0.1",
   "description": "Deskpro Apps SDK",
   "exports": "./src/index.ts",
   "license": "MIT",

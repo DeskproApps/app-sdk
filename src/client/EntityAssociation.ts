@@ -1,8 +1,8 @@
 import type Client from "@/client/Client.ts";
 
-export default class EntityAssociation {
+export default class EntityAssociation<Settings extends object> {
   constructor(
-    private client: Client,
+    private client: Client<Settings>,
     private name: string,
     private entityId: string,
   ) {}
