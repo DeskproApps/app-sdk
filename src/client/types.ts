@@ -444,11 +444,14 @@ export type TargetActionData =
   | TicketReplyEmailItemSelectionTargetAction
   | OnTicketReplyEmailTargetAction;
 
-export type TargetAction<P = any> = {
+export type TargetAction<
+  Payload = any,
+  Settings extends object = Record<string, never>,
+> = {
   name: string;
   type: TargetActionType;
-  context: Context<any>; // @todo: is this accurate?
-  payload?: P;
+  context: Context<Settings>;
+  payload?: Payload;
   subject: string;
 };
 
@@ -510,10 +513,10 @@ export type CoreCallSender = {
   _getProxyAuth: () => Promise<ProxyAuthPayload>;
   _getAdminGenericProxyAuth: () => Promise<ProxyAuthPayload>;
   _entityAssociationGet: () => Promise<any>;
-  _entityAssociationSet: () => Promise<any>;
-  _entityAssociationList: () => Promise<any>;
-  _entityAssociationDelete: () => Promise<any>;
-  _entityAssociationCountEntities: () => Promise<any>;
+  _entityAssociationSet: () => Promise<boolean>;
+  _entityAssociationList: () => Promise<any[]>;
+  _entityAssociationDelete: () => Promise<boolean>;
+  _entityAssociationCountEntities: () => Promise<number>;
   _stateSet: (
     name: string,
     value: string,

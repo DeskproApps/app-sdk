@@ -30,7 +30,7 @@ import {
 import EntityAssociation from "@/client/EntityAssociation.ts";
 import UI from "@/client/UI.ts";
 
-export default class Client {
+export default class Client<Settings extends object = Record<string, never>> {
   private parentMethods: ChildMethods = {
     onReady: () => undefined,
     onShow: () => undefined,
@@ -61,12 +61,12 @@ export default class Client {
     name: string,
     key: string,
     value?: string,
-  ) => Promise<void>;
+  ) => Promise<boolean>;
   public entityAssociationDelete: (
     entityId: string,
     name: string,
     key: string,
-  ) => Promise<void>;
+  ) => Promise<boolean>;
   public entityAssociationGet: (
     entityId: string,
     name: string,
@@ -154,10 +154,10 @@ export default class Client {
     this.unfocus = () => {};
     this.openContact = () => {};
 
-    this.entityAssociationSet = async () => {};
-    this.entityAssociationDelete = async () => {};
+    this.entityAssociationSet = async () => false;
+    this.entityAssociationDelete = async () => false;
     this.entityAssociationGet = async () => null;
-    this.entityAssociationList = async () => [""];
+    this.entityAssociationList = async () => [];
     this.entityAssociationCountEntities = async () => 0;
 
     this.setState = async () => ({ isSuccess: false, errors: [] });
@@ -377,19 +377,19 @@ export default class Client {
   }
 
   public onReady(cb: ChildMethod): void {
-    this.parentMethods.onReady = (context: Context<any>) => {
+    this.parentMethods.onReady = (context: Context<Settings>) => {
       cb(context);
     };
   }
 
   public onShow(cb: ChildMethod): void {
-    this.parentMethods.onShow = (context: Context<any>) => {
+    this.parentMethods.onShow = (context: Context<Settings>) => {
       cb(context);
     };
   }
 
   public onChange(cb: ChildMethod): void {
-    this.parentMethods.onChange = (context: Context<any>) => {
+    this.parentMethods.onChange = (context: Context<Settings>) => {
       cb(context);
     };
   }
@@ -546,8 +546,8 @@ export default class Client {
   }
 }
 
-export function createClient(
+export function createClient<Settings extends object = Record<string, never>>(
   options: ClientOptions = {},
 ): Client {
-  return new Client(connectToParent, options);
+  return new Client<Settings>(connectToParent, options);
 }
