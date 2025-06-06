@@ -1,85 +1,19 @@
-name: PR Build
+name: Feature Build
 
 on:
   pull_request:
-    branches:
-      - main
+  merge_group: # support for merge queues/groups
+  workflow_dispatch:
+
+# Allow this job to be canceled when new commits are pushed
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  deskpro_ui:
-    name: Test / Build
-    timeout-minutes: 30
-    runs-on: ubuntu-latest
+  build:
+    uses: ./.github/workflows/subworkflow-build.yml
+    secrets: inherit
     permissions:
-      contents: read
-      pull-requests: write
-      issues: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-
-      - uses: pnpm/action-setup@v4
-        name: Install pnpm
-        id: pnpm-install
-        with:
-          version: 9
-          run_install: false
-
-      - name: Get pnpm store directory
-        id: pnpm-cache
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
-
-      - uses: actions/cache@v4
-        name: Setup pnpm cache
-        with:
-          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile --strict-peer-dependencies
-
-      - name: Build package
-        run: pnpm run build
-
-      - name: Lint
-        run: pnpm run lint
-
-      - name: Type check
-        run: pnpm exec tsc -b
-
-      - name: Run tests
-        run: pnpm run test
-
-      - name: Build Storybook
-        run: pnpm run build:storybook
-
-      - name: Deploy Storybook
-        id: chromauideployment
-        if: github.actor != 'dependabot[bot]'
-        uses: chromaui/action@c93e0bc3a63aa176e14a75b61a31847cbfdd341c # v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
-          storybookBuildDir: storybook
-          exitOnceUploaded: true
-
-      - name: Leave comment with URL
-        if: github.actor != 'dependabot[bot]'
-        uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043 # v4
-        with:
-          issue-number: ${{ github.event.pull_request.number }}
-          body: |
-            :rocket: **Storybook is ready!** :rocket:
-            You can view the [Storybook Build here](${{ steps.chromauideployment.outputs.storybookUrl }}) and the [Chromatic Build here](${{steps.chromauideployment.outputs.buildUrl}}).
-          reactions: rocket
+      contents: write
+      pull-requests: read
