@@ -1,9 +1,5 @@
 // deno-lint-ignore-file no-explicit-any
-import {
-  assertSpyCall,
-  assertSpyCalls,
-  spy,
-} from "@std/testing/mock";
+import { assertSpyCall, assertSpyCalls, spy } from "@std/testing/mock";
 import UI from "@/client/UI.ts";
 import type { AppElement, TargetActionOptions } from "@/client/types.ts";
 

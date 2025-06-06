@@ -1,7 +1,4 @@
-import {
-  assertSpyCall,
-  spy,
-} from "@std/testing/mock";
+import { assertSpyCall, spy } from "@std/testing/mock";
 import Proxy from "@/client/Proxy.ts";
 import type { ProxyAuthPayload } from "@/client/types.ts";
 

@@ -1,8 +1,5 @@
 // deno-lint-ignore-file no-explicit-any
-import {
-  assertSpyCall,
-  spy,
-} from "@std/testing/mock";
+import { assertSpyCall, spy } from "@std/testing/mock";
 import Settings from "@/client/Settings.ts";
 
 Deno.test("Settings.setSetting calls underlying method with correct parameters", async () => {

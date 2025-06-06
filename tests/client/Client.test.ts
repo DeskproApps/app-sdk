@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-explicit-any
-import { assert, assertEquals, assertRejects, assertThrows } from "@std/assert";
-import Client, {createClient} from "@/client/Client.ts";
+import { assert, assertEquals, assertThrows } from "@std/assert";
+import Client, { createClient } from "@/client/Client.ts";
 
 Deno.test("Client can be instantiated", () => {
   const client = new Client(() => ({} as any));
@@ -14,23 +14,27 @@ Deno.test("createClient returns a Client instance", () => {
 
 Deno.test("Client emits events to subscribers", async () => {
   let readyCallback: (() => void) | undefined = undefined;
-  const client = new Client(((callbacks: any) => {
-    readyCallback = (callbacks as any).methods._onReady;
+  const client = new Client(
+    ((callbacks: any) => {
+      readyCallback = (callbacks as any).methods._onReady;
 
-    return {
-      promise: {}
-    };
-  }) as any);
+      return {
+        promise: {},
+      };
+    }) as any,
+  );
 
   await client.run();
 
   let called = 0;
-  const callback = () => { called += 1; };
-  
+  const callback = () => {
+    called += 1;
+  };
+
   client.subscribe("ready", callback);
   readyCallback!();
   assertEquals(1, called);
-  
+
   client.unsubscribe("ready", callback);
   readyCallback!();
   assertEquals(1, called); // Did not increase.
@@ -86,18 +90,18 @@ Deno.test("Client.proxy() returns Proxy instance for agent role", async () => {
   const client = new Client(() => ({
     promise: {
       _getProxyAuth: () => Promise.resolve({}),
-    }
+    },
   } as any));
   await client.run();
   const proxy = client.proxy("agent");
   assert(proxy);
 });
 
-Deno.test("Client.proxy() returns Proxy instance for admin role", async() => {
+Deno.test("Client.proxy() returns Proxy instance for admin role", async () => {
   const client = new Client(() => ({
     promise: {
       _getAdminGenericProxyAuth: () => Promise.resolve({}),
-    }
+    },
   } as any));
   await client.run();
   const proxy = client.proxy("admin");

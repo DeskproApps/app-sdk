@@ -1,8 +1,5 @@
 // deno-lint-ignore-file no-explicit-any
-import {
-  assertSpyCall,
-  spy,
-} from "@std/testing/mock";
+import { assertSpyCall, spy } from "@std/testing/mock";
 import State from "@/client/State.ts";
 import type { GetStateResponse, StateOptions } from "@/client/types.ts";
 import { assertEquals } from "@std/assert";

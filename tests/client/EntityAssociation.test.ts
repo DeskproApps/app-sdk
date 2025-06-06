@@ -7,7 +7,11 @@ Deno.test("EntityAssociation.get calls underlying method and parses JSON", async
   const mockMethods = {
     get: spy(() => Promise.resolve(JSON.stringify({ foo: "bar" }))),
   };
-  const entity = new EntityAssociation(mockMethods as any, "test-name", "test-entity");
+  const entity = new EntityAssociation(
+    mockMethods as any,
+    "test-name",
+    "test-entity",
+  );
 
   const result = await entity.get("test-key");
 
@@ -21,7 +25,11 @@ Deno.test("EntityAssociation.get returns null when no value exists", async () =>
   const mockMethods = {
     get: spy(() => Promise.resolve(null)),
   };
-  const entity = new EntityAssociation(mockMethods as any, "test-name", "test-entity");
+  const entity = new EntityAssociation(
+    mockMethods as any,
+    "test-name",
+    "test-entity",
+  );
 
   const result = await entity.get("test-key");
 
@@ -32,7 +40,11 @@ Deno.test("EntityAssociation.list calls underlying method with correct params", 
   const mockMethods = {
     list: spy(() => Promise.resolve(["key1", "key2"])),
   };
-  const entity = new EntityAssociation(mockMethods as any, "test-name", "test-entity");
+  const entity = new EntityAssociation(
+    mockMethods as any,
+    "test-name",
+    "test-entity",
+  );
 
   const result = await entity.list();
 
@@ -46,7 +58,11 @@ Deno.test("EntityAssociation.set calls underlying method with stringified value"
   const mockMethods = {
     set: spy(() => Promise.resolve(true)),
   };
-  const entity = new EntityAssociation(mockMethods as any, "test-name", "test-entity");
+  const entity = new EntityAssociation(
+    mockMethods as any,
+    "test-name",
+    "test-entity",
+  );
   const testValue = { complex: { data: 123 } };
 
   const result = await entity.set("test-key", testValue);
@@ -61,7 +77,11 @@ Deno.test("EntityAssociation.set calls underlying method with undefined when no 
   const mockMethods = {
     set: spy(() => Promise.resolve(true)),
   };
-  const entity = new EntityAssociation(mockMethods as any, "test-name", "test-entity");
+  const entity = new EntityAssociation(
+    mockMethods as any,
+    "test-name",
+    "test-entity",
+  );
 
   const result = await entity.set("test-key");
 
@@ -75,7 +95,11 @@ Deno.test("EntityAssociation.delete calls underlying method with correct params"
   const mockMethods = {
     delete: spy(() => Promise.resolve(true)),
   };
-  const entity = new EntityAssociation(mockMethods as any, "test-name", "test-entity");
+  const entity = new EntityAssociation(
+    mockMethods as any,
+    "test-name",
+    "test-entity",
+  );
 
   const result = await entity.delete("test-key");
 
@@ -89,7 +113,11 @@ Deno.test("EntityAssociation.count calls underlying method with correct params",
   const mockMethods = {
     count: spy(() => Promise.resolve(5)),
   };
-  const entity = new EntityAssociation(mockMethods as any, "test-name", "test-entity");
+  const entity = new EntityAssociation(
+    mockMethods as any,
+    "test-name",
+    "test-entity",
+  );
 
   const result = await entity.count();
 

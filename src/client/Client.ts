@@ -95,7 +95,9 @@ type DeskproCallSender = {
 };
 
 function emptyFunction(): void {}
-function emptyAsyncFunction(): Promise<void> {return Promise.resolve();}
+function emptyAsyncFunction(): Promise<void> {
+  return Promise.resolve();
+}
 
 /**
  * Client class for interacting with the Deskpro platform.
@@ -165,7 +167,9 @@ export default class Client<Settings extends object = never> {
   /**
    * @ignore
    */
-  private _getAdminGenericProxyAuth: (() => Promise<ProxyAuthPayload>) | undefined;
+  private _getAdminGenericProxyAuth:
+    | (() => Promise<ProxyAuthPayload>)
+    | undefined;
 
   // UI
   /**
@@ -356,11 +360,11 @@ export default class Client<Settings extends object = never> {
     this._getAdminGenericProxyAuth = undefined;
     this._registerElement = emptyFunction;
     this._deregisterElement = emptyFunction;
-    this._setBadgeCount = emptyFunction
-    this._setTitle = emptyFunction
-    this._focus = emptyFunction
-    this._unfocus = emptyFunction
-    this._openContact = emptyFunction
+    this._setBadgeCount = emptyFunction;
+    this._setTitle = emptyFunction;
+    this._focus = emptyFunction;
+    this._unfocus = emptyFunction;
+    this._openContact = emptyFunction;
 
     this._entityAssociationSet = async () => false;
     this._entityAssociationDelete = async () => false;
