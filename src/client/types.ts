@@ -192,11 +192,11 @@ export type DataTicket = {
       name: string;
     }[];
     department?:
-    | {
-      id: string | undefined;
-      name: string;
-    }
-    | undefined;
+      | {
+        id: string | undefined;
+        name: string;
+      }
+      | undefined;
     urgency: string;
     agent: DataTicketUser;
     ccs: DataTicketUser[];
@@ -327,7 +327,7 @@ export type DataAdminSettings = {
 
 /**
  * Context for when the app target is "ticket_sidebar".
- * 
+ *
  * @template Settings - The app settings (from manifest.json)
  */
 export type ContextTicket<Settings> = BaseContext<
@@ -338,14 +338,14 @@ export type ContextTicket<Settings> = BaseContext<
 
 /**
  * Context for when the app target is "user_sidebar".
- * 
+ *
  * @template Settings - The app settings (from manifest.json)
  */
 export type ContextUser<Settings> = BaseContext<"user", DataUser, Settings>;
 
 /**
  * Context for when the app target is "organisation_sidebar".
- * 
+ *
  * @template Settings - The app settings (from manifest.json)
  */
 export type ContextOrganisation<Settings> = BaseContext<
@@ -356,7 +356,7 @@ export type ContextOrganisation<Settings> = BaseContext<
 
 /**
  * Context for when the app target is "content_knowledge_base_sidebar".
- * 
+ *
  * @template Settings - The app settings (from manifest.json)
  */
 export type ContextKnowledge_base<Settings> = BaseContext<
@@ -367,14 +367,14 @@ export type ContextKnowledge_base<Settings> = BaseContext<
 
 /**
  * Context for when the app target is "content_news_sidebar".
- * 
+ *
  * @template Settings - The app settings (from manifest.json)
  */
 export type ContextNews<Settings> = BaseContext<"news", DataNews, Settings>;
 
 /**
  * Context for when the app target is "content_download_sidebar".
- * 
+ *
  * @template Settings - The app settings (from manifest.json)
  */
 export type ContextDownload<Settings> = BaseContext<
@@ -385,7 +385,7 @@ export type ContextDownload<Settings> = BaseContext<
 
 /**
  * Context for when the app target is "content_guide_topic_sidebar".
- * 
+ *
  * @template Settings - The app settings (from manifest.json)
  */
 export type ContextGuideTopic<Settings> = BaseContext<
@@ -396,7 +396,7 @@ export type ContextGuideTopic<Settings> = BaseContext<
 
 /**
  * Context for when the app target is "community_topic_sidebar".
- * 
+ *
  * @template Settings - The app settings (from manifest.json)
  */
 export type ContextCommunityTopic<Settings> = BaseContext<
@@ -407,7 +407,7 @@ export type ContextCommunityTopic<Settings> = BaseContext<
 
 /**
  * Context for when the app target is "global".
- * 
+ *
  * @template Settings - The app settings (from manifest.json)
  */
 export type ContextGlobal<Settings> = BaseContext<
@@ -418,7 +418,7 @@ export type ContextGlobal<Settings> = BaseContext<
 
 /**
  * Context when the app Target is an admin setting.
- * 
+ *
  * @template Settings - The app settings (from manifest.json)
  */
 export type ContextAdminSettings<Settings> = BaseContext<
@@ -429,7 +429,7 @@ export type ContextAdminSettings<Settings> = BaseContext<
 
 /**
  * Union type representing all supported context types.
- * 
+ *
  * @template Settings - The app settings (from manifest.json)
  */
 export type Context<Settings> =
@@ -594,8 +594,8 @@ export type TargetActionData =
 /**
  * A target action event with context and payload
  * which is triggered on user action in Deskpro.
- * 
- * @template Settings - The app settings type
+ *
+ * @template Settings - The app settings (from manifest.json)
  * @template Payload - The action payload type
  */
 export type TargetAction<
@@ -611,7 +611,7 @@ export type TargetAction<
 
 /**
  * An event from a target element.
- * 
+ *
  * @template Payload - The event payload type
  */
 export type TargetElementEvent<Payload = any> = {
@@ -622,7 +622,7 @@ export type TargetElementEvent<Payload = any> = {
 
 /**
  * Function type for handling element events.
- * 
+ *
  * @template Payload - The event payload type
  */
 export type ElementEvent<Payload> = (
@@ -631,7 +631,7 @@ export type ElementEvent<Payload> = (
 
 /**
  * Union type representing supported app UI elements.
- * 
+ *
  * @template Payload - The element payload type
  */
 export type AppElement<Payload = any> =
@@ -691,7 +691,7 @@ export interface SetStateResponse {
 
 /**
  * Response from getState operations.
- * 
+ *
  * @template T - The type of the state data
  */
 export interface GetStateResponse<T> {
@@ -722,7 +722,7 @@ export interface OAuth2Result {
 /**
  * Error class for OAuth2 specific operations.
  */
-export class OAuth2Error extends Error { }
+export class OAuth2Error extends Error {}
 
 /**
  * Result from starting a local OAuth2 flow.
@@ -773,7 +773,7 @@ export type PollOAuth2GlobalFlowResult = PollOAuth2FlowResult & {
 
 /**
  * Options for target actions.
- * 
+ *
  * @template Payload - The action payload type
  */
 export interface TargetActionOptions<Payload = any> {

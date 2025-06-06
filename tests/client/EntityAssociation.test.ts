@@ -1,108 +1,100 @@
-import { assertEquals } from "jsr:@std/assert";
-import type Client from "@/client/Client.ts";
+// deno-lint-ignore-file no-explicit-any
+import { assertSpyCall, spy } from "@std/testing/mock";
 import EntityAssociation from "@/client/EntityAssociation.ts";
+import { assertEquals } from "@std/assert";
 
-// Helper to create a stub Client with default method overrides
-function createStubClient(overrides: Partial<Client<never>>): Client<never> {
-  return {
-    entityAssociationGet: () => Promise.resolve(undefined),
-    entityAssociationSet: () => Promise.resolve(),
-    entityAssociationList: () => Promise.resolve([]),
-    entityAssociationDelete: () => Promise.resolve(),
-    ...overrides,
-  } as Client<never>;
-}
+Deno.test("EntityAssociation.get calls underlying method and parses JSON", async () => {
+  const mockMethods = {
+    get: spy(() => Promise.resolve(JSON.stringify({ foo: "bar" }))),
+  };
+  const entity = new EntityAssociation(mockMethods as any, "test-name", "test-entity");
 
-Deno.test("get() returns parsed value", async () => {
-  const client = createStubClient({
-    entityAssociationGet: () =>
-      Promise.resolve(JSON.stringify({ hello: "world" })),
+  const result = await entity.get("test-key");
+
+  assertSpyCall(mockMethods.get, 0, {
+    args: ["test-entity", "test-name", "test-key"],
   });
-
-  const assoc = new EntityAssociation(client, "Test", "entity-1");
-  const result = await assoc.get<{ hello: string }>("key");
-  assertEquals(result, { hello: "world" });
+  assertEquals(result, { foo: "bar" });
 });
 
-Deno.test("get() returns null for undefined", async () => {
-  const client = createStubClient({
-    entityAssociationGet: () => Promise.resolve(null),
-  });
+Deno.test("EntityAssociation.get returns null when no value exists", async () => {
+  const mockMethods = {
+    get: spy(() => Promise.resolve(null)),
+  };
+  const entity = new EntityAssociation(mockMethods as any, "test-name", "test-entity");
 
-  const assoc = new EntityAssociation(client, "Test", "entity-1");
-  const result = await assoc.get("missing");
+  const result = await entity.get("test-key");
+
   assertEquals(result, null);
 });
 
-Deno.test("list() returns keys", async () => {
-  const client = createStubClient({
-    entityAssociationList: () => Promise.resolve(["a", "b"]),
-  });
+Deno.test("EntityAssociation.list calls underlying method with correct params", async () => {
+  const mockMethods = {
+    list: spy(() => Promise.resolve(["key1", "key2"])),
+  };
+  const entity = new EntityAssociation(mockMethods as any, "test-name", "test-entity");
 
-  const assoc = new EntityAssociation(client, "Test", "entity-1");
-  const result = await assoc.list();
-  assertEquals(result, ["a", "b"]);
+  const result = await entity.list();
+
+  assertSpyCall(mockMethods.list, 0, {
+    args: ["test-entity", "test-name"],
+  });
+  assertEquals(result, ["key1", "key2"]);
 });
 
-Deno.test("set() sends serialized value", async () => {
-  let capturedKey = "";
-  let capturedValue = "";
+Deno.test("EntityAssociation.set calls underlying method with stringified value", async () => {
+  const mockMethods = {
+    set: spy(() => Promise.resolve(true)),
+  };
+  const entity = new EntityAssociation(mockMethods as any, "test-name", "test-entity");
+  const testValue = { complex: { data: 123 } };
 
-  const client = createStubClient({
-    entityAssociationSet: (_e, _n, key, value) => {
-      capturedKey = key;
-      capturedValue = value ?? "";
-      return Promise.resolve(true);
-    },
+  const result = await entity.set("test-key", testValue);
+
+  assertSpyCall(mockMethods.set, 0, {
+    args: ["test-entity", "test-name", "test-key", JSON.stringify(testValue)],
   });
-
-  const assoc = new EntityAssociation(client, "Test", "entity-1");
-
-  assertEquals(true, await assoc.set("myKey", { foo: "bar" }));
-  assertEquals(capturedKey, "myKey");
-  assertEquals(capturedValue, JSON.stringify({ foo: "bar" }));
+  assertEquals(result, true);
 });
 
-Deno.test("set() with undefined value passes undefined", async () => {
-  let captured = "not undefined";
+Deno.test("EntityAssociation.set calls underlying method with undefined when no value", async () => {
+  const mockMethods = {
+    set: spy(() => Promise.resolve(true)),
+  };
+  const entity = new EntityAssociation(mockMethods as any, "test-name", "test-entity");
 
-  const client = createStubClient({
-    entityAssociationSet: (_e, _n, _k, v) => {
-      captured = typeof v === "undefined" ? "undefined" : "value";
-      return Promise.resolve(true);
-    },
+  const result = await entity.set("test-key");
+
+  assertSpyCall(mockMethods.set, 0, {
+    args: ["test-entity", "test-name", "test-key", undefined],
   });
-
-  const assoc = new EntityAssociation(client, "Test", "entity-1");
-
-  assertEquals(true, await assoc.set("empty"));
-  assertEquals(captured, "undefined");
+  assertEquals(result, true);
 });
 
-Deno.test("delete() is called with correct key", async () => {
-  let deletedKey = "";
+Deno.test("EntityAssociation.delete calls underlying method with correct params", async () => {
+  const mockMethods = {
+    delete: spy(() => Promise.resolve(true)),
+  };
+  const entity = new EntityAssociation(mockMethods as any, "test-name", "test-entity");
 
-  const client = createStubClient({
-    entityAssociationDelete: (_e, _n, key) => {
-      deletedKey = key;
-      return Promise.resolve(true);
-    },
+  const result = await entity.delete("test-key");
+
+  assertSpyCall(mockMethods.delete, 0, {
+    args: ["test-entity", "test-name", "test-key"],
   });
-
-  const assoc = new EntityAssociation(client, "Test", "entity-1");
-
-  assertEquals(true, await assoc.delete("delete-me"));
-  assertEquals(deletedKey, "delete-me");
+  assertEquals(result, true);
 });
 
-Deno.test("count() is called", async () => {
-  const client = createStubClient({
-    entityAssociationCountEntities: (_e, _n) => {
-      return Promise.resolve(12);
-    },
+Deno.test("EntityAssociation.count calls underlying method with correct params", async () => {
+  const mockMethods = {
+    count: spy(() => Promise.resolve(5)),
+  };
+  const entity = new EntityAssociation(mockMethods as any, "test-name", "test-entity");
+
+  const result = await entity.count();
+
+  assertSpyCall(mockMethods.count, 0, {
+    args: ["test-entity", "test-name"],
   });
-
-  const assoc = new EntityAssociation(client, "Test", "entity-1");
-
-  assertEquals(12, await assoc.count());
+  assertEquals(result, 5);
 });

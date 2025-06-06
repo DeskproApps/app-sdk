@@ -1,88 +1,223 @@
-import { assertSpyCalls, spy } from "https://deno.land/std/testing/mock.ts";
-import { assertEquals } from "jsr:@std/assert";
+// deno-lint-ignore-file no-explicit-any
+import {
+  assertSpyCall,
+  assertSpyCalls,
+  spy,
+} from "@std/testing/mock";
 import UI from "@/client/UI.ts";
-import type Client from "@/client/Client.ts";
+import type { AppElement, TargetActionOptions } from "@/client/types.ts";
 
-Deno.test("UI methods call client.sendUIMessage with correct messages", async (test) => {
-  const mockSend = spy((_msg: unknown) => Promise.resolve());
-  const mockClient = { sendUIMessage: mockSend };
-  const ui = new UI(mockClient as unknown as Client<never>);
+Deno.test("UI.setBadgeCount calls underlying method with correct count", () => {
+  const mockMethods = {
+    setBadgeCount: spy(() => {}),
+  } as any;
+  const ui = new UI(mockMethods);
 
-  await test.step("send() forwards the message as-is", async () => {
-    const msg = { type: "custom", data: 123 };
-    // deno-lint-ignore no-explicit-any
-    await ui.send(msg as any);
-    assertSpyCalls(mockSend, 1);
-    assertEquals(mockSend.calls[0].args[0], msg);
+  ui.setBadgeCount(5);
+
+  assertSpyCall(mockMethods.setBadgeCount, 0, { args: [5] });
+});
+
+Deno.test("UI.setTitle calls underlying method with correct title", () => {
+  const mockMethods = {
+    setTitle: spy(() => {}),
+  } as any;
+  const ui = new UI(mockMethods);
+
+  ui.setTitle("Test Title");
+
+  assertSpyCall(mockMethods.setTitle, 0, { args: ["Test Title"] });
+});
+
+Deno.test("UI.focus calls underlying focus method", () => {
+  const mockMethods = {
+    focus: spy(() => {}),
+  } as any;
+  const ui = new UI(mockMethods);
+
+  ui.focus();
+
+  assertSpyCalls(mockMethods.focus, 1);
+});
+
+Deno.test("UI.unfocus calls underlying unfocus method", () => {
+  const mockMethods = {
+    unfocus: spy(() => {}),
+  } as any;
+  const ui = new UI(mockMethods);
+
+  ui.unfocus();
+
+  assertSpyCalls(mockMethods.unfocus, 1);
+});
+
+Deno.test("UI.setBlocking calls underlying method with correct value", async () => {
+  const mockMethods = {
+    setBlocking: spy(() => Promise.resolve()),
+  } as any;
+  const ui = new UI(mockMethods);
+
+  await ui.setBlocking(true);
+
+  assertSpyCall(mockMethods.setBlocking, 0, { args: [true] });
+});
+
+Deno.test("UI.openContact calls underlying method with contact details", () => {
+  const mockMethods = {
+    openContact: spy(() => {}),
+  } as any;
+  const ui = new UI(mockMethods);
+  const contact = { id: 123, emailAddress: "test@example.com" };
+
+  ui.openContact(contact);
+
+  assertSpyCall(mockMethods.openContact, 0, { args: [contact] });
+});
+
+Deno.test("UI.registerTargetAction calls underlying method with correct params", async () => {
+  const mockMethods = {
+    registerTargetAction: spy(() => Promise.resolve()),
+  } as any;
+  const ui = new UI(mockMethods);
+  const options: TargetActionOptions = {
+    title: "string",
+    description: "string",
+    payload: "Payload",
+  };
+
+  await ui.registerTargetAction("test-action", "ticket_addition", options);
+
+  assertSpyCall(mockMethods.registerTargetAction, 0, {
+    args: ["test-action", "ticket_addition", options],
   });
+});
 
-  await test.step(
-    "appendContentToActiveTicketReplyBox() sends correct message",
-    async () => {
-      await ui.appendContentToActiveTicketReplyBox("Hello");
-      assertSpyCalls(mockSend, 2);
-      assertEquals(mockSend.calls[1].args[0], {
-        type: "append_to_active_ticket_reply_box",
-        content: "Hello",
-      });
-    },
+Deno.test("UI.deregisterTargetAction calls underlying method with correct name", async () => {
+  const mockMethods = {
+    deregisterTargetAction: spy(() => Promise.resolve()),
+  } as any;
+  const ui = new UI(mockMethods);
+
+  await ui.deregisterTargetAction("test-action");
+
+  assertSpyCall(mockMethods.deregisterTargetAction, 0, {
+    args: ["test-action"],
+  });
+});
+
+Deno.test("UI.registerElement calls underlying method with correct params", () => {
+  const mockMethods = {
+    registerElement: spy(() => {}),
+  } as any;
+  const ui = new UI(mockMethods);
+  const element: AppElement = {
+    type: "plus_button",
+    payload: "Payload",
+  };
+
+  ui.registerElement("test-element", element);
+
+  assertSpyCall(mockMethods.registerElement, 0, {
+    args: ["test-element", element],
+  });
+});
+
+Deno.test("UI.deregisterElement calls underlying method with correct id", () => {
+  const mockMethods = {
+    deregisterElement: spy(() => {}),
+  } as any;
+  const ui = new UI(mockMethods);
+
+  ui.deregisterElement("test-element");
+
+  assertSpyCall(mockMethods.deregisterElement, 0, {
+    args: ["test-element"],
+  });
+});
+
+Deno.test("UI.appendContentToActiveTicketReplyBox sends correct message", async () => {
+  const mockMethods = {
+    sendUIMessage: spy(() => Promise.resolve()),
+  } as any;
+  const ui = new UI(mockMethods);
+
+  await ui.appendContentToActiveTicketReplyBox("test content");
+
+  assertSpyCall(mockMethods.sendUIMessage, 0, {
+    args: [{
+      type: "append_to_active_ticket_reply_box",
+      content: "test content",
+    }],
+  });
+});
+
+Deno.test("UI.appendLinkToActiveTicketReplyBox sends correct message", async () => {
+  const mockMethods = {
+    sendUIMessage: spy(() => Promise.resolve()),
+  } as any;
+  const ui = new UI(mockMethods);
+
+  await ui.appendLinkToActiveTicketReplyBox(
+    "https://example.com",
+    "Example",
+    "Example Title",
   );
 
-  await test.step(
-    "appendLinkToActiveTicketReplyBox() sends correct message with optional title",
-    async () => {
-      await ui.appendLinkToActiveTicketReplyBox(
-        "http://example.com",
-        "Click here",
-        "Example",
-      );
-      assertSpyCalls(mockSend, 3);
-      assertEquals(mockSend.calls[2].args[0], {
-        type: "append_link_to_active_ticket_reply_box",
-        url: "http://example.com",
-        text: "Click here",
-        title: "Example",
-      });
+  assertSpyCall(mockMethods.sendUIMessage, 0, {
+    args: [{
+      type: "append_link_to_active_ticket_reply_box",
+      url: "https://example.com",
+      text: "Example",
+      title: "Example Title",
+    }],
+  });
+});
 
-      await ui.appendLinkToActiveTicketReplyBox(
-        "http://example.com",
-        "Click here",
-      );
-      assertSpyCalls(mockSend, 4);
-      assertEquals(mockSend.calls[3].args[0], {
-        type: "append_link_to_active_ticket_reply_box",
-        url: "http://example.com",
-        text: "Click here",
-        title: undefined,
-      });
-    },
-  );
+Deno.test("UI.alertSuccess sends correct message", async () => {
+  const mockMethods = {
+    sendUIMessage: spy(() => Promise.resolve()),
+  } as any;
+  const ui = new UI(mockMethods);
 
-  await test.step("alertSuccess() sends success alert message", async () => {
-    await ui.alertSuccess("Success!", 2000);
-    assertSpyCalls(mockSend, 5);
-    assertEquals(mockSend.calls[4].args[0], {
+  await ui.alertSuccess("Success!", 5000);
+
+  assertSpyCall(mockMethods.sendUIMessage, 0, {
+    args: [{
       type: "alert_success",
       text: "Success!",
-      duration: 2000,
-    });
+      duration: 5000,
+    }],
   });
+});
 
-  await test.step("alertError() sends error alert message", async () => {
-    await ui.alertError("Oops!", 1500);
-    assertSpyCalls(mockSend, 6);
-    assertEquals(mockSend.calls[5].args[0], {
+Deno.test("UI.alertError sends correct message", async () => {
+  const mockMethods = {
+    sendUIMessage: spy(() => Promise.resolve()),
+  } as any;
+  const ui = new UI(mockMethods);
+
+  await ui.alertError("Error!", 3000);
+
+  assertSpyCall(mockMethods.sendUIMessage, 0, {
+    args: [{
       type: "alert_error",
-      text: "Oops!",
-      duration: 1500,
-    });
+      text: "Error!",
+      duration: 3000,
+    }],
   });
+});
 
-  await test.step("alertDismiss() sends dismiss alert message", async () => {
-    await ui.alertDismiss();
-    assertSpyCalls(mockSend, 7);
-    assertEquals(mockSend.calls[6].args[0], {
+Deno.test("UI.alertDismiss sends correct message", async () => {
+  const mockMethods = {
+    sendUIMessage: spy(() => Promise.resolve()),
+  } as any;
+  const ui = new UI(mockMethods);
+
+  await ui.alertDismiss();
+
+  assertSpyCall(mockMethods.sendUIMessage, 0, {
+    args: [{
       type: "alert_dismiss",
-    });
+    }],
   });
 });
