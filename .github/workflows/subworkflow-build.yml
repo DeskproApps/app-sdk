@@ -78,6 +78,8 @@ jobs:
           PUSH_TAG: "${{ inputs.push-tag }}"
           RUN_LINT: "${{ inputs.run-lint }}"
           RUN_TESTS: "${{ inputs.run-tests }}"
+          DENO_AUTH_TOKEN: "${{ secrets.DENO_AUTH_TOKEN }}"
+          NODE_AUTH_TOKEN: "${{ secrets.NPM_AUTH_TOKEN }}"
         with:
           env: |
             LABELS
@@ -86,6 +88,8 @@ jobs:
             RUN_LINT
             RUN_TESTS
             GITHUB_OUTPUT
+            DENO_AUTH_TOKEN
+            NODE_AUTH_TOKEN
           runCmd: |
             set -e
 
@@ -109,15 +113,18 @@ jobs:
             DENO_MILESTONE=$(echo "$MILESTONE" | sed 's/-version//g')
             deno task build --version "$VERSION" --milestone "$DENO_MILESTONE" | tee /tmp/build.log
             VERSION_NEW=$(tail -n 1 /tmp/build.log | grep -oP '[0-9]+\.[0-9]+\.[0-9]+')
+
+            echo "New version: $VERSION_NEW"
             git tag -a $VERSION_NEW -m "Version $VERSION_NEW"
             echo "version=$VERSION_NEW" >> $GITHUB_OUTPUT
 
             # Push
             if [ "$PUSH_TAG" = "true" ]; then
               git push origin $VERSION_NEW
+              deno publish --token $DENO_AUTH_TOKEN
 
-              deno config set //registry.npmjs.org/:_authToken $NODE_AUTH_TOKEN
-              deno publish
+              pnpm config set //registry.npmjs.org/:_authToken $NODE_AUTH_TOKEN
+              pnpm publish --no-git-checks npm/
             fi
 
       - name: Create release

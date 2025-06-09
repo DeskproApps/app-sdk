@@ -1,5 +1,7 @@
 /**
  * Proxy requests through the Deskpro instance.
+ *
+ * @link https://support.deskpro.com/en-GB/guides/developers/entity-associations
  */
 export default class EntityAssociation {
   constructor(

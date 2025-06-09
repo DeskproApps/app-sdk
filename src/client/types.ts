@@ -857,6 +857,7 @@ export type ListenerCallbackMap<Settings extends object> = {
  *
  * @template Settings - The app settings (from manifest.json)
  */
-export type ListenerCallbackName<Settings extends object> = keyof ListenerCallbackMap<
-  Settings
->;
+export type ListenerCallbackName<Settings extends object> =
+  keyof ListenerCallbackMap<
+    Settings
+  >;

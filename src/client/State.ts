@@ -4,6 +4,11 @@ import type {
   StateOptions,
 } from "@/client/types.ts";
 
+/**
+ * Class to handle state management.
+ *
+ * @link https://support.deskpro.com/en-GB/guides/developers/apps/apps-1/app-state
+ */
 export default class State {
   constructor(
     private methods: {

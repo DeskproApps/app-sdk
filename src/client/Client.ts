@@ -4,6 +4,8 @@ import type {
   AppElement,
   Context,
   GetStateResponse,
+  ListenerCallbackMap,
+  ListenerCallbackName,
   PollOAuth2FlowResult,
   ProxyAuthPayload,
   SetStateResponse,
@@ -14,8 +16,6 @@ import type {
   TargetActionOptions,
   TargetActionType,
   UIMessage,
-  ListenerCallbackMap,
-  ListenerCallbackName,
 } from "@/client/types.ts";
 import EntityAssociation from "@/client/EntityAssociation.ts";
 import UI from "@/client/UI.ts";
@@ -89,6 +89,8 @@ function emptyAsyncFunction(): Promise<void> {
 
 /**
  * Client class for interacting with the Deskpro platform.
+ *
+ * @link https://support.deskpro.com/en-GB/guides/developers/anatomy-of-an-app
  *
  * @example
  * ```typescript
@@ -679,6 +681,9 @@ export default class Client<Settings extends object = never> {
   }
 }
 
+/**
+ * Creates a new Deskpro client instance.
+ */
 export function createClient<
   Settings extends object = Record<string, never>,
 >(): Client<Settings> {

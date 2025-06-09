@@ -10,7 +10,21 @@ import type {
  * This class allows sending various UI-related messages to control or modify
  * the UI state, such as manipulating ticket reply boxes or showing alerts.
  *
+ * @link https://support.deskpro.com/en-GB/guides/developers/deskpro-ui
+ *
  * @template Settings - The app settings (from manifest.json)
+ *
+ * @example
+ * ```typescript
+ * import { createClient } from "@deskpro/app-sdk";
+ *
+ * const client = createClient();
+ *
+ * client.run().then(() => {
+ *   client.ui().setTitle("My New Title");
+ *   client.ui().setBadgeCount(42);
+ * });
+ * ```
  */
 export default class UI {
   /**

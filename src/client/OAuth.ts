@@ -9,6 +9,16 @@ import {
   type StartOAuth2LocalFlowResult,
 } from "@/client/types.ts";
 
+/**
+ * Class to handle OAuth2 flows.
+ *
+ * @link https://support.deskpro.com/en-GB/guides/developers/oauth-flows
+ *
+ * A local flow is when OAuth2 credentials are provided in the app settings and thus unqiue per customer.
+ * A global flow is when OAuth2 credentials are provided in `secrets` and thus shared across all customers.
+ *
+ * Ideally both flows should be supported by the same OAuth2 provider as this allows the customer to decide if they want an easy flow (global) or a more secure flow (local).
+ */
 export default class OAuth {
   constructor(
     private methods: {

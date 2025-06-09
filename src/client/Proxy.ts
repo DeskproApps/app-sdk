@@ -3,6 +3,8 @@ import type { ProxyAuthPayload } from "@/client/types.ts";
 /**
  * Proxy requests through the Deskpro instance.
  *
+ * @link https://support.deskpro.com/en-GB/guides/developers/app-proxy
+ *
  *  * @example
  * ```typescript
  * import { createClient } from "@deskpro/app-sdk";

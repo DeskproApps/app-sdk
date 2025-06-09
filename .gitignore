@@ -6,5 +6,5 @@
 .DS_Store
 /coverage
 .pnpm-store
-npm
-docs
+/npm
+/docs

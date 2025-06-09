@@ -1,4 +1,10 @@
 // deno-lint-ignore-file no-explicit-any
+
+/**
+ * Settings class to manage application settings.
+ *
+ * @link https://support.deskpro.com/en-GB/guides/developers/app-settings
+ */
 export default class Settings {
   constructor(
     private methods: {
