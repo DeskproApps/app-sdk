@@ -834,3 +834,29 @@ export type UIMessage =
   | UIMessageAlertSuccess
   | UIMessageAlertError
   | UIMessageAlertDismiss;
+
+/**
+ * Map of listener callbacks for different events in Deskpro apps.
+ * Each key corresponds to an event type, and the value is a function that takes
+ * the relevant context or action as an argument.
+ *
+ * @template Settings - The app settings (from manifest.json)
+ */
+export type ListenerCallbackMap<Settings extends object> = {
+  ready: (context: Context<Settings>) => void;
+  show: (context: Context<Settings>) => void;
+  change: (context: Context<Settings>) => void;
+  targetAction: (action: TargetAction<Settings>) => void;
+  elementEvent: (action: ElementEvent<any>) => void;
+  adminSettingsChange: (action: Record<string, any>) => void;
+};
+
+/**
+ * Type for listener callback names.
+ * This is a union of the keys from ListenerCallbackMap.
+ *
+ * @template Settings - The app settings (from manifest.json)
+ */
+export type ListenerCallbackName<Settings extends object> = keyof ListenerCallbackMap<
+  Settings
+>;

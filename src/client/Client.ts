@@ -23,19 +23,6 @@ import State from "@/client/State.ts";
 import Proxy from "@/client/Proxy.ts";
 import Setting from "@/client/Settings.ts";
 
-type ListenerCallbackMap<Settings extends object> = {
-  ready: (context: Context<Settings>) => void;
-  show: (context: Context<Settings>) => void;
-  change: (context: Context<Settings>) => void;
-  targetAction: (action: TargetAction<Settings>) => void;
-  elementEvent: (action: ElementEvent<any>) => void;
-  adminSettingsChange: (action: Record<string, any>) => void;
-};
-
-type ListenerCallbackName<Settings extends object> = keyof ListenerCallbackMap<
-  Settings
->;
-
 type DeskproCallSender = {
   openContact: (
     contact: Partial<{ id: number; emailAddress: string; phoneNumber: string }>,
