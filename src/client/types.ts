@@ -359,7 +359,7 @@ export type ContextOrganisation<Settings> = BaseContext<
  *
  * @template Settings - The app settings (from manifest.json)
  */
-export type ContextKnowledge_base<Settings> = BaseContext<
+export type ContextKnowledgeBase<Settings> = BaseContext<
   "knowledge_base",
   DataKnowledgeBase,
   Settings
@@ -436,7 +436,7 @@ export type Context<Settings> =
   | ContextTicket<Settings>
   | ContextUser<Settings>
   | ContextOrganisation<Settings>
-  | ContextKnowledge_base<Settings>
+  | ContextKnowledgeBase<Settings>
   | ContextNews<Settings>
   | ContextDownload<Settings>
   | ContextGuideTopic<Settings>
