@@ -3,7 +3,6 @@ import { type Connection, connectToParent, type Methods } from "penpal";
 import type {
   AppElement,
   Context,
-  ElementEvent,
   GetStateResponse,
   PollOAuth2FlowResult,
   ProxyAuthPayload,
@@ -15,6 +14,8 @@ import type {
   TargetActionOptions,
   TargetActionType,
   UIMessage,
+  ListenerCallbackMap,
+  ListenerCallbackName,
 } from "@/client/types.ts";
 import EntityAssociation from "@/client/EntityAssociation.ts";
 import UI from "@/client/UI.ts";
