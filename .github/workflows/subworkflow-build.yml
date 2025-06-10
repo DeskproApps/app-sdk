@@ -120,9 +120,13 @@ jobs:
 
             # Push
             if [ "$PUSH_TAG" = "true" ]; then
+              ## Push the tag for git
               git push origin $VERSION_NEW
-              deno publish --token $DENO_AUTH_TOKEN
 
+              ## Publish to jsr
+              deno publish --set-version $VERSION_NEW --allow-dirty --token $DENO_AUTH_TOKEN
+
+              ## Publish to npm
               pnpm config set //registry.npmjs.org/:_authToken $NODE_AUTH_TOKEN
               pnpm publish --no-git-checks npm/
             fi
