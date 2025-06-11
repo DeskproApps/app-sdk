@@ -102,7 +102,7 @@ jobs:
 
             # Test
             if [ "$RUN_TESTS" = true ]; then
-              deno test
+              deno task test
             fi
 
             # Build
