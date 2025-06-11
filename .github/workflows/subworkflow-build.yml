@@ -1,0 +1,145 @@
+name: "Build"
+
+on:
+  workflow_call:
+    inputs:
+      push-tag:
+        type: boolean
+        description: "Should the version tag be pushed to the repo"
+        default: false
+        required: false
+      run-lint:
+        type: boolean
+        description: "Should the lint checks be run"
+        default: true
+        required: false
+      run-tests:
+        type: boolean
+        description: "Should the tests be run"
+        default: true
+        required: false
+
+jobs:
+  build:
+    name: Lint / Test / Build / Tag
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Prep local dev
+        run: |
+          touch ~/.gitconfig
+          mkdir ~/.ssh
+          git config --global user.name "$(git log -1 --pretty=format:%an)"
+          git config --global user.email "$(git log -1 --pretty=format:%ae)"
+
+      - name: Export PR Labels
+        id: extract_labels
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -n "${{ github.event.pull_request.number }}" ]; then
+            # Regular PR case
+            echo "PR number found: ${{ github.event.pull_request.number }}"
+            labels=$(jq -r '[.[] | .name] | join(",")' <<< '${{ toJson(github.event.pull_request.labels) }}')
+          else
+            # Merge queue case - find PR by head ref
+            echo "No PR number found, checking for merge group"
+            PR_NUM=$(git log -1 --pretty=%B | grep -oP '#\K\d+')
+            echo "PR number found: $PR_NUM"
+            if [ -n "$PR_NUM" ]; then
+              labels=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+                "https://api.github.com/repos/${{ github.repository }}/issues/$PR_NUM/labels" | \
+                jq -r '[.[] | .name] | join(",")')
+            fi
+          fi
+          echo "labels=${labels:-}" >> $GITHUB_OUTPUT
+
+      - name: Export Version Tag
+        id: version_tag
+        run: |
+          tag=$(git tag --merged HEAD --sort=-version:refname -l "[0-9]*.[0-9]*.[0-9]*" -l "v[0-9]*.[0-9]*.[0-9]*" | head -n 1);
+          echo version=$([ -z "$tag" ] && echo "0.0.0" || echo "${tag#v}") >> $GITHUB_OUTPUT;
+
+      - name: Lint, Test, Build, and Tag
+        id: package
+        uses: devcontainers/ci@8bf61b26e9c3a98f69cb6ce2f88d24ff59b785c6 #v0.3
+        env:
+          LABELS: "${{ steps.extract_labels.outputs.labels }}"
+          VERSION: "${{ steps.version_tag.outputs.version }}"
+          PUSH_TAG: "${{ inputs.push-tag }}"
+          RUN_LINT: "${{ inputs.run-lint }}"
+          RUN_TESTS: "${{ inputs.run-tests }}"
+          DENO_AUTH_TOKEN: "${{ secrets.DENO_AUTH_TOKEN }}"
+          NODE_AUTH_TOKEN: "${{ secrets.NPM_AUTH_TOKEN }}"
+        with:
+          env: |
+            LABELS
+            VERSION
+            PUSH_TAG
+            RUN_LINT
+            RUN_TESTS
+            GITHUB_OUTPUT
+            DENO_AUTH_TOKEN
+            NODE_AUTH_TOKEN
+          runCmd: |
+            set -e
+
+            # Lint
+            if [ "$RUN_LINT" = true ]; then
+              deno fmt --check
+              deno lint
+              deno check --doc-only *.md
+            fi
+
+            # Test
+            if [ "$RUN_TESTS" = true ]; then
+              deno task test
+            fi
+
+            # Build
+            MILESTONE=$(echo "$LABELS" | grep -E 'major-version|minor-version' | head -1)
+            if [ -z "$MILESTONE" ]; then
+              MILESTONE="patch-version"
+            fi
+            DENO_MILESTONE=$(echo "$MILESTONE" | sed 's/-version//g')
+            deno task build --version "$VERSION" --milestone "$DENO_MILESTONE" | tee /tmp/build.log
+            VERSION_NEW=$(tail -n 1 /tmp/build.log | grep -oP '[0-9]+\.[0-9]+\.[0-9]+')
+
+            echo "New version: $VERSION_NEW"
+            git tag -a $VERSION_NEW -m "Version $VERSION_NEW"
+            echo "version=$VERSION_NEW" >> $GITHUB_OUTPUT
+
+            # Push
+            if [ "$PUSH_TAG" = "true" ]; then
+              ## Push the tag for git
+              git push origin $VERSION_NEW
+
+              ## Publish to jsr
+              jq --arg version "$VERSION_NEW" '.version = $version' deno.json > deno.json.tmp && mv deno.json.tmp deno.json
+              deno publish --set-version $VERSION_NEW --allow-dirty --token $DENO_AUTH_TOKEN
+
+              ## Publish to npm
+              pnpm config set //registry.npmjs.org/:_authToken $NODE_AUTH_TOKEN
+              pnpm publish --no-git-checks npm/
+            fi
+
+      - name: Create release
+        id: create_release
+        if: ${{ inputs.push-tag && steps.package.outputs.version != '0.0.0' }}
+        uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631 # v2.2.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.package.outputs.version }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true

@@ -1,137 +1,146 @@
 # Deskpro Apps SDK
 
-Deskpro Apps SDK provides a client for communicating with the Deskpro system, React UI components as well as basic
-styles and utilities for use in simple apps and widgets.
+Deskpro Apps SDK provides a client for communicating with the Deskpro system,
+React UI components as well as basic styles and utilities for use in simple apps
+and widgets.
 
 ## Installation
 
-Install the SDK via `pnpm` or `npm`:
+Install the SDK via `deno`, `pnpm` or `npm`:
 
 ```bash
-pnpm add @deskpro/app-sdk
-```
-
-OR
-
-```bash
-npm install @deskpro/app-sdk
+## deno
+deno add jsr:@deskpro/app-sdk # Using jsr.io
+## pnpm
+pnpm add jsr:@deskpro/app-sdk # Using jsr.io
+pnpm add @deskpro/app-sdk     # using npmjs.com
+## npm
+npm install @deskpro/app-sdk  # Using npmjs.com
 ```
 
 ## Basic Usage
 
-When communicating with the Deskpro system, an app or widget must register "listeners" for key events:
+When communicating with the Deskpro system, an app or widget must register
+`listeners` for key events:
 
-- **onReady** - when an app is loaded, but is not necessarily shown to the user
-- **onShow** - the app has been revealed to the user
-- **onChange** - the data (context) being passed to the app from Deskpro has changed
+- `ready` - when an app is loaded, but is not necessarily shown to the user
+- `show` - the app has been revealed to the user
+- `change` - the data (context) being passed to the app from Deskpro has changed
 
-To register a listener you'll need to first import and create a Deskpro client, register the
-listener(s) and then lastly run the client:
+To register a listener you'll need to first import and create a Deskpro client,
+register the listener(s) and then lastly run the client:
 
 ```javascript
 import { createClient } from "@deskpro/app-sdk";
 
 const client = createClient();
 
-client.onReady((context) => {
+client.subscribe("ready", (context) => {
   // do something when the app is ready
 });
 
-client.onShow((context) => {
+client.subscribe("show", (context) => {
   // do something when the app is shown to the user
 });
 
-client.onChange((context) => {
+client.subscribe("change", (context) => {
   // do something when the "context" data has changed
 });
 
 client.run();
 ```
 
-As an aside, it's always best to "run" the client after the page is loaded, the easiest way to do
-this is to register the `client.run()` call as a `window.onload` method:
+To make `fetch` requests via the
+[app proxy](https://support.deskpro.com/en-US/guides/developers/app-proxy), and
+therefore gain access to
+[app settings](https://support.deskpro.com/en-GB/guides/developers/app-settings),
+we've provided a utility that wraps the native `fetch` function in the browser:
 
-```javascript
+```typescript
 import { createClient } from "@deskpro/app-sdk";
 
 const client = createClient();
 
-window.onload = () => client.run();
-
-// ...
-```
-
-To make `fetch` requests via the app proxy, and therefore gain access to app settings, we've provided
-a utility that wraps the native `fetch` function in the browser:
-
-```javascript
-import { createClient, proxyFetch } from "@deskpro/app-sdk";
-
-const client = createClient();
-
-window.onload = () => client.run();
-
-proxyFetch(client).then((dpFetch) => {
-  // Use dpFetch() just like you would use fetch() natively.
-  dpFetch("https://example.com/api/things?api_key=__key__").then((res) => {
-    // ...
+client.run().then(() => {
+  // Example usage of Proxy
+  client.proxy("agent").fetch().then((fetch) => {
+    fetch("https://api.example.com/data?api_key=__apikey_").then((response) => {
+      return response.json();
+    }).then((data) => {
+      console.log(data);
+    });
   });
 });
 ```
 
-Notice that the proxy will replace placeholders with the format `__<setting>__`. In this example, `__key__` will
-be replaced with the app backend setting `key`. Proxy setting placeholders may be placed in the URL,
-headers or body of the request.
+Notice that
+[the proxy will replace placeholders](https://support.deskpro.com/en-US/guides/developers/app-proxy#setting_injection)
+with the format `__<setting>__`. In this example, `__apikey__` will be replaced
+with the app backend setting `apikey`. Proxy setting placeholders may be placed
+in the URL, headers or body of the request.
 
-You can also control aspects of Deskpro itself, like the app title and icon badge count. To do this, use the client
-again to set these properties:
+You can also control aspects of Deskpro itself, like the app title and icon
+badge count. To do this, use the client again to set these properties:
 
-```javascript
+```typescript
 import { createClient } from "@deskpro/app-sdk";
 
 const client = createClient();
 
-window.onload = () => client.run();
-
-client.setTitle("My New Title");
-client.setBadgeCount(42);
+client.run().then(() => {
+  client.ui().setTitle("My New Title");
+  client.ui().setBadgeCount(42);
+});
 ```
 
 ## UI Components
 
-The Apps SDK exports several [Deskpro UI](https://github.com/deskpro/deskpro-product/tree/master/packages/deskpro-ui) components and
-is supported by a published Storybook story of each.
+The Apps SDK doesn't export any UI elements but for consistency, we recommended
+you use
+[Deskpro UI](https://github.com/deskpro/deskpro-product/tree/master/packages/deskpro-ui)
+for consistency.
 
-All app UI components reside in `src/ui/components` and usually consist of three files each:
+## Developer Area
 
-- Component file, e.g. `Button.tsx` that exports or compounds the component
-- Story file, e.g. `Button.stories.tsx` that contains the story for the component
-- Index file
-
-To start developing UI components, run Storybook with:
+### Tests
 
 ```bash
-pnpm start
+deno test
+deno test --coverage # or with coverage
 ```
 
-When you're ready to build, run the standard build process for this library:
+### Lints
 
 ```bash
-pnpm build
+deno lint
 ```
 
-**Note:** UI components are **not bundled**, instead they're available in the ESM and CJS module builds.
-
-## Tests
-
-To run the SDK test suite, execute the following:
+### Formatting
 
 ```bash
-pnpm test
+deno fmt
 ```
 
-OR
+### All in One
+
+_This is recommended before
+[opening a Pull Request](https://github.com/DeskproApps/app-sdk/compare)._
 
 ```bash
-npm run test
+deno task check
 ```
+
+### Build
+
+This takes two arguments, `--version` which is the existing published version
+and `--milestone` which is the type of increment you wish to create, e.g.
+`major`, `minor`, or `patch`.
+
+```bash
+deno task build --version 0.0.0 --milestone minor
+```
+
+### Publish
+
+This should not be done outside of the Github actions. Publishing occurs
+automatically upon pushes to `main`.
