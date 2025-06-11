@@ -124,6 +124,7 @@ jobs:
               git push origin $VERSION_NEW
 
               ## Publish to jsr
+              jq --arg version "$VERSION_NEW" '.version = $version' deno.json > deno.json.tmp && mv deno.json.tmp deno.json
               deno publish --set-version $VERSION_NEW --allow-dirty --token $DENO_AUTH_TOKEN
 
               ## Publish to npm
