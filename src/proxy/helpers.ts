@@ -11,17 +11,24 @@ export const proxyFetch: ProxyFetch = async (client: IDeskproClient): Promise<Fe
 
   const { proxyUrl, token } = await client.getProxyAuth();
 
-  return (input: RequestInfo, init?: RequestInit) => fetch(proxyUrl, {
-    ...init,
-    method: "POST",
-    headers: {
-      "X-Proxy-Headers": JSON.stringify(init?.headers ?? {}),
+  return (input: RequestInfo, init?: RequestInit) => {
+    const method = typeof input === "string" ? (init?.method ?? "GET") : input.method;
+    const headers: Record<string, string> = {
       "X-Proxy-Authorization": `Bearer ${token}`,
       "X-Proxy-Url": typeof input === "string" ? input : input.url,
-      "X-Proxy-Method": typeof input === "string" ? (init?.method ?? "GET") : input.method,
-    },
-  });
+      "X-Proxy-Method": method
+    };
 
+    if (method.toUpperCase() !== "OPTIONS") {
+      headers["X-Proxy-Headers"] = JSON.stringify(init?.headers ?? {});
+    };
+
+    return fetch(proxyUrl, {
+      ...init,
+      method: "POST",
+      headers: headers
+    });
+  };
 };
 
 export const adminGenericProxyFetch: ProxyFetch = async (client: IDeskproClient): Promise<Fetch> => {
