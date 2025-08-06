@@ -21,7 +21,7 @@ export const proxyFetch: ProxyFetch = async (client: IDeskproClient): Promise<Fe
 
     if (method.toUpperCase() !== "OPTIONS") {
       headers["X-Proxy-Headers"] = JSON.stringify(init?.headers ?? {});
-    };
+    }
 
     return fetch(proxyUrl, {
       ...init,
