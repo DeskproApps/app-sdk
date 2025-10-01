@@ -39,8 +39,8 @@ importers:
         specifier: ^7.1.0
         version: 7.1.0
       handlebars:
-        specifier: 4.7.7
-        version: 4.7.7
+        specifier: 4.7.8
+        version: 4.7.8
       i18n-iso-countries:
         specifier: ^7.14.0
         version: 7.14.0
@@ -2820,8 +2820,8 @@ packages:
   graphemer@1.4.0:
     resolution: {integrity: sha512-EtKwoO6kxCL9WO5xipiHTZlSzBm7WLT627TqC/uVRd0HKmq8NXyebnNYxDoBi7wt8eTWrUrKXCOVaFq9x1kgag==}
 
-  handlebars@4.7.7:
-    resolution: {integrity: sha512-aAcXm5OAfE/8IXkcZvCepKU3VzW1/39Fb5ZuqMtgI/hT8X2YgoMvBY5dLhq/cpOvw7Lk1nK/UF71aLG/ZnVYRA==}
+  handlebars@4.7.8:
+    resolution: {integrity: sha512-vafaFqs8MZkRrSX7sFVUdo3ap/eNiLnb4IakshzvP56X5Nr1iGKAIqdX6tMlm6HcNRIkr6AxO5jFEoJzzpT8aQ==}
     engines: {node: '>=0.4.7'}
     hasBin: true
 
@@ -7605,7 +7605,7 @@ snapshots:
 
   graphemer@1.4.0: {}
 
-  handlebars@4.7.7:
+  handlebars@4.7.8:
     dependencies:
       minimist: 1.2.8
       neo-async: 2.6.2
