@@ -29,6 +29,9 @@ import {
   PollOAuth2FlowResult,
   PollOAuth2LocalFlowResult,
   PollOAuth2GlobalFlowResult,
+  IJWT,
+  ISecurity,
+  JwtMintResult,
 } from "./types";
 import { CallSender } from "penpal/lib/types";
 
@@ -105,6 +108,27 @@ class EntityAssociation implements IEntityAssociation {
   }
 }
 
+class JWT implements IJWT {
+  constructor(
+    private client: IDeskproClient,
+    private strategyName: string
+  ) { }
+
+  async mint(options: { context: Context }): Promise<JwtMintResult> {
+    return this.client.securityJwtMint(this.strategyName, options.context);
+  }
+}
+
+class Security implements ISecurity {
+  constructor(
+    private client: IDeskproClient
+  ) { }
+
+  jwt(strategyName: string): IJWT {
+    return new JWT(this.client, strategyName);
+  }
+}
+
 export class DeskproClient implements IDeskproClient {
 
   private parentMethods: ChildMethods = {
@@ -172,6 +196,9 @@ export class DeskproClient implements IDeskproClient {
   // Deskpro UI
   public sendDeskproUIMessage: (message: DeskproUIMessage) => Promise<void>;
 
+  // Security
+  public securityJwtMint: (strategyName: string, context: Context) => Promise<JwtMintResult>;
+
   constructor(
     private readonly parent: <T extends object = CallSender>(options?: object) => Connection<T>,
     private readonly options: DeskproClientOptions
@@ -220,6 +247,8 @@ export class DeskproClient implements IDeskproClient {
     this.setAdminSettingInvalid = async () => { };
 
     this.sendDeskproUIMessage = async () => { };
+
+    this.securityJwtMint = async () => ({ token: "", expiresAt: new Date() } as JwtMintResult);
 
     if (this.options.runAfterPageLoad) {
       window.addEventListener("load", () => this.run());
@@ -401,6 +430,21 @@ export class DeskproClient implements IDeskproClient {
     if (parent._sendDeskproUIMessage) {
       this.sendDeskproUIMessage = (message: DeskproUIMessage) => parent._sendDeskproUIMessage(message);
     }
+
+    // Security
+    if (parent._securityJwtMint) {
+      this.securityJwtMint = async (strategyName: string, context: Context) => {
+        try {
+          const result = await parent._securityJwtMint(strategyName, context);
+          return {
+            ...result,
+            expiresAt: result.expiresAt instanceof Date ? result.expiresAt : new Date(result.expiresAt),
+          };
+        } catch (error) {
+          throw error;
+        }
+      };
+    }
   }
 
   public onReady(cb: ChildMethod): void {
@@ -549,6 +593,10 @@ export class DeskproClient implements IDeskproClient {
 
   public deskpro(): IDeskproUI {
     return new DeskproUI(this);
+  }
+
+  public security(): ISecurity {
+    return new Security(this);
   }
 
   public getParentMethods(): ChildMethods {
