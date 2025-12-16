@@ -222,6 +222,7 @@ export interface CoreCallSender {
   _setAdminSetting: (value: string) => void;
   _setAdminSettingInvalid: (message: string, settingName?: string) => void;
   _sendDeskproUIMessage: (message: DeskproUIMessage) => Promise<void>;
+  _securityJwtMint: (strategyName: string, context: Context) => Promise<JwtMintResult>;
 }
 
 export type DeskproCallSender = CoreCallSender & TicketSidebarDeskproCallSender;
@@ -339,6 +340,7 @@ export interface IDeskproClient {
   setAdminSetting: (value: string) => void;
   setAdminSettingInvalid: (message: string, settingName?: string) => void;
   sendDeskproUIMessage: (message: DeskproUIMessage) => Promise<void>;
+  securityJwtMint: (strategyName: string, context: Context) => Promise<JwtMintResult>;
   getEntityAssociation(name: string, entityId: string): IEntityAssociation;
   startOauth2Local(
     authorizeUrlFn: (data: { state: string, callbackUrl: string, codeChallenge: string }) => string,
@@ -351,6 +353,7 @@ export interface IDeskproClient {
     options?: { timeout?: number, pollInterval?: number },
   ): Promise<IOAuth2>;
   deskpro(): IDeskproUI;
+  security(): ISecurity;
 }
 
 export interface IOAuth2 {
@@ -469,4 +472,17 @@ export interface IDeskproUI {
   alertSuccess: (text: string, duration?: number) => Promise<void>;
   alertError: (text: string, duration?: number) => Promise<void>;
   alertDismiss: () => Promise<void>;
+}
+
+export interface JwtMintResult {
+  token: string;
+  expiresAt: Date;
+}
+
+export interface IJWT {
+  mint: (options: { context: Context }) => Promise<JwtMintResult>;
+}
+
+export interface ISecurity {
+  jwt: (strategyName: string) => IJWT;
 }
