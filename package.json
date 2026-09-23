@@ -24,6 +24,7 @@
     "node": ">=20.0.0"
   },
   "dependencies": {
+    "@deskpro/app-sdk-types": "workspace:*",
     "@deskpro/deskpro-ui": "^8.3.1",
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
     "@fortawesome/free-brands-svg-icons": "^6.7.2",
@@ -107,7 +108,8 @@
   },
   "scripts": {
     "start": "pnpm start:storybook",
-    "build": "pnpm build:esm && pnpm build:cjs && pnpm build:dist",
+    "build": "pnpm build:types && pnpm build:esm && pnpm build:cjs && pnpm build:dist",
+    "build:types": "pnpm --filter @deskpro/app-sdk-types build",
     "build:dist": "rm -rf ./dist && rollup --config rollup.config.js && terser dist/deskpro.js -o dist/deskpro.min.js -m --source-map",
     "build:esm": "rm -rf ./esm && tsc",
     "build:cjs": "rm -rf ./cjs && babel ./src --out-dir ./cjs --extensions .ts,.tsx --ignore \"**/*.stories.tsx\" --plugins @babel/plugin-transform-modules-commonjs",
