@@ -7,3 +7,5 @@ build-storybook
 .DS_Store
 /coverage
 .pnpm-store
+/packages/*/dist
+/packages/*/node_modules

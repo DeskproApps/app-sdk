@@ -70,9 +70,11 @@ jobs:
             pnpm version patch
           fi
 
+          npm pkg set version="$(node -p "require('./package.json').version")" --prefix packages/app-sdk-types
+
           pnpm run docs:storybook
 
-          git add docs/*
+          git add docs/* packages/app-sdk-types/package.json
 
           git commit -m "Updated Storybook"
 
@@ -86,4 +88,6 @@ jobs:
       - name: Publish to Registry
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
-        run: pnpm publish
+        run: |
+          pnpm --filter @deskpro/app-sdk-types publish
+          pnpm publish
